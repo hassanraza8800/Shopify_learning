@@ -1,0 +1,747 @@
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  #scent-family-{{ section.id }} {
+    --sf-eyebrow-size: {{ section.settings.eyebrow_size | default: 11 }}px;
+    --sf-heading-size: {{ section.settings.heading_size | default: 42 }}px;
+    --sf-desc-size: {{ section.settings.description_size | default: 14 }}px;
+    --sf-card-badge-size: {{ section.settings.card_badge_size | default: 11 }}px;
+    --sf-card-title-size: {{ section.settings.card_title_size | default: 22 }}px;
+    --sf-card-notes-size: {{ section.settings.card_notes_size | default: 13 }}px;
+  }
+{%- endstyle -%}
+
+<section
+  id="scent-family-{{ section.id }}"
+  class="scent-family-section color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding"
+>
+  <div class="page-width scent-family__wrapper">
+    {%- if section.settings.eyebrow != blank or section.settings.heading != blank or section.settings.description != blank -%}
+      <div class="scent-family__header">
+        <div class="scent-family__header-left">
+          {%- if section.settings.eyebrow != blank -%}
+            <span class="scent-family__eyebrow">{{ section.settings.eyebrow }}</span>
+          {%- endif -%}
+          {%- if section.settings.heading != blank -%}
+            <h2 class="scent-family__heading">{{ section.settings.heading }}</h2>
+          {%- endif -%}
+        </div>
+        {%- if section.settings.description != blank -%}
+          <div class="scent-family__header-right">
+            <p class="scent-family__description">{{ section.settings.description }}</p>
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <div class="scent-family__grid scent-family__grid--desktop-{{ section.settings.columns_desktop }} scent-family__grid--mobile-{{ section.settings.columns_mobile }}">
+      {%- if section.settings.collection_list != blank -%}
+        {%- for collection_item in section.settings.collection_list -%}
+          {%- liquid
+            assign card_link = collection_item.url
+            assign card_title = collection_item.title
+            assign card_image = collection_item.featured_image | default: collection_item.image
+            assign card_notes = collection_item.description | strip_html | truncatewords: 15
+            assign badge_num = forloop.index | prepend: '0' | slice: -2, 2
+            assign card_badge = 'FAMILY ' | append: badge_num
+          -%}
+          <div class="scent-family__card-wrap">
+            <a href="{{ card_link }}" class="scent-family__card">
+              <div class="scent-family__image-container scent-family__image-container--{{ section.settings.image_ratio }}">
+                <span class="scent-family__badge">{{ card_badge }}</span>
+
+                {%- if card_image != blank -%}
+                  {{
+                    card_image
+                    | image_url: width: 800
+                    | image_tag:
+                      loading: 'lazy',
+                      class: 'scent-family__image',
+                      widths: '300, 450, 600, 800',
+                      alt: card_title | default: 'Collection'
+                  }}
+                {%- else -%}
+                  <div class="scent-family__image-placeholder">
+                    {%- assign placeholder_index = forloop.index0 | modulo: 4 -%}
+                    {%- case placeholder_index -%}
+                      {%- when 0 -%}
+                        <div class="scent-family__placeholder-bg scent-family__placeholder-bg--woody">
+                          <svg class="scent-family__placeholder-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2">
+                            <path d="M32 6v52M32 14l12 12M32 26l-14 14M32 38l16 16M32 20l-10 10M32 46l8 8" stroke-linecap="round"/>
+                          </svg>
+                        </div>
+                      {%- when 1 -%}
+                        <div class="scent-family__placeholder-bg scent-family__placeholder-bg--floral">
+                          <svg class="scent-family__placeholder-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2">
+                            <circle cx="32" cy="32" r="6"/>
+                            <circle cx="32" cy="18" r="8"/>
+                            <circle cx="44" cy="26" r="8"/>
+                            <circle cx="44" cy="38" r="8"/>
+                            <circle cx="32" cy="46" r="8"/>
+                            <circle cx="20" cy="38" r="8"/>
+                            <circle cx="20" cy="26" r="8"/>
+                          </svg>
+                        </div>
+                      {%- when 2 -%}
+                        <div class="scent-family__placeholder-bg scent-family__placeholder-bg--citrus">
+                          <svg class="scent-family__placeholder-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2">
+                            <circle cx="32" cy="32" r="22"/>
+                            <circle cx="32" cy="32" r="16"/>
+                            <line x1="32" y1="16" x2="32" y2="48"/>
+                            <line x1="16" y1="32" x2="48" y2="32"/>
+                            <line x1="21" y1="21" x2="43" y2="43"/>
+                            <line x1="21" y1="43" x2="43" y2="21"/>
+                          </svg>
+                        </div>
+                      {%- else -%}
+                        <div class="scent-family__placeholder-bg scent-family__placeholder-bg--amber">
+                          <svg class="scent-family__placeholder-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2">
+                            <polygon points="32,8 54,20 54,44 32,56 10,44 10,20"/>
+                            <circle cx="32" cy="32" r="8"/>
+                          </svg>
+                        </div>
+                    {%- endcase -%}
+                  </div>
+                {%- endif -%}
+              </div>
+
+              <div class="scent-family__content">
+                <h3 class="scent-family__card-title">{{ card_title }}</h3>
+                {%- if card_notes != blank -%}
+                  <p class="scent-family__card-notes">{{ card_notes }}</p>
+                {%- endif -%}
+              </div>
+            </a>
+          </div>
+        {%- endfor -%}
+      {%- else -%}
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign card_collection = block.settings.collection
+            if card_collection != blank
+              assign card_link = block.settings.link | default: card_collection.url
+              assign card_title = block.settings.title | default: card_collection.title
+              assign card_image = block.settings.image | default: card_collection.featured_image | default: card_collection.image
+              assign card_notes = block.settings.notes
+              if card_notes == blank and card_collection.description != blank
+                assign card_notes = card_collection.description | strip_html | truncatewords: 15
+              endif
+            else
+              assign card_link = block.settings.link
+              assign card_title = block.settings.title | default: 'Collection'
+              assign card_image = block.settings.image
+              assign card_notes = block.settings.notes
+            endif
+          -%}
+          <div class="scent-family__card-wrap" {{ block.shopify_attributes }}>
+            {%- if card_link != blank -%}
+              <a href="{{ card_link }}" class="scent-family__card">
+            {%- else -%}
+              <div class="scent-family__card">
+            {%- endif -%}
+
+              <div class="scent-family__image-container scent-family__image-container--{{ section.settings.image_ratio }}">
+                {%- if block.settings.badge != blank -%}
+                  <span class="scent-family__badge">{{ block.settings.badge }}</span>
+                {%- endif -%}
+
+                {%- if card_image != blank -%}
+                  {{
+                    card_image
+                    | image_url: width: 800
+                    | image_tag:
+                      loading: 'lazy',
+                      class: 'scent-family__image',
+                      widths: '300, 450, 600, 800',
+                      alt: card_title | default: 'Scent Family'
+                  }}
+                {%- else -%}
+                  <div class="scent-family__image-placeholder">
+                    {%- assign placeholder_index = forloop.index0 | modulo: 4 -%}
+                    {%- case placeholder_index -%}
+                      {%- when 0 -%}
+                        <div class="scent-family__placeholder-bg scent-family__placeholder-bg--woody">
+                          <svg class="scent-family__placeholder-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2">
+                            <path d="M32 6v52M32 14l12 12M32 26l-14 14M32 38l16 16M32 20l-10 10M32 46l8 8" stroke-linecap="round"/>
+                          </svg>
+                        </div>
+                      {%- when 1 -%}
+                        <div class="scent-family__placeholder-bg scent-family__placeholder-bg--floral">
+                          <svg class="scent-family__placeholder-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2">
+                            <circle cx="32" cy="32" r="6"/>
+                            <circle cx="32" cy="18" r="8"/>
+                            <circle cx="44" cy="26" r="8"/>
+                            <circle cx="44" cy="38" r="8"/>
+                            <circle cx="32" cy="46" r="8"/>
+                            <circle cx="20" cy="38" r="8"/>
+                            <circle cx="20" cy="26" r="8"/>
+                          </svg>
+                        </div>
+                      {%- when 2 -%}
+                        <div class="scent-family__placeholder-bg scent-family__placeholder-bg--citrus">
+                          <svg class="scent-family__placeholder-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2">
+                            <circle cx="32" cy="32" r="22"/>
+                            <circle cx="32" cy="32" r="16"/>
+                            <line x1="32" y1="16" x2="32" y2="48"/>
+                            <line x1="16" y1="32" x2="48" y2="32"/>
+                            <line x1="21" y1="21" x2="43" y2="43"/>
+                            <line x1="21" y1="43" x2="43" y2="21"/>
+                          </svg>
+                        </div>
+                      {%- else -%}
+                        <div class="scent-family__placeholder-bg scent-family__placeholder-bg--amber">
+                          <svg class="scent-family__placeholder-icon" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.2">
+                            <polygon points="32,8 54,20 54,44 32,56 10,44 10,20"/>
+                            <circle cx="32" cy="32" r="8"/>
+                          </svg>
+                        </div>
+                    {%- endcase -%}
+                  </div>
+                {%- endif -%}
+              </div>
+
+              <div class="scent-family__content">
+                {%- if card_title != blank -%}
+                  <h3 class="scent-family__card-title">{{ card_title }}</h3>
+                {%- endif -%}
+                {%- if card_notes != blank -%}
+                  <p class="scent-family__card-notes">{{ card_notes }}</p>
+                {%- endif -%}
+              </div>
+
+            {%- if card_link != blank -%}
+              </a>
+            {%- else -%}
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      {%- endif -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600&display=swap');
+
+  .scent-family-section {
+    --sf-font-serif: 'Newsreader', Georgia, serif;
+    --sf-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --sf-accent: #b08d57;
+    --sf-hairline: rgba(255, 255, 255, 0.1);
+    --sf-card-bg: rgba(255, 255, 255, 0.03);
+    --sf-card-border: rgba(255, 255, 255, 0.08);
+    font-family: var(--sf-font-sans);
+    position: relative;
+    width: 100%;
+  }
+
+  .scent-family__wrapper {
+    max-width: 1360px;
+    margin: 0 auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  /* Header */
+  .scent-family__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 2.5rem;
+    margin-bottom: 2.5rem;
+  }
+
+  .scent-family__header-left {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .scent-family__eyebrow {
+    font-size: var(--sf-eyebrow-size, 11px);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--sf-accent, #b08d57);
+  }
+
+  .scent-family__heading {
+    font-family: var(--sf-font-serif);
+    font-size: var(--sf-heading-size, clamp(2rem, 3.5vw, 2.75rem));
+    font-weight: 400;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    color: currentColor;
+    margin: 0;
+  }
+
+  .scent-family__header-right {
+    max-width: 360px;
+    text-align: left;
+  }
+
+  .scent-family__description {
+    font-size: var(--sf-desc-size, 14px);
+    line-height: 1.55;
+    color: currentColor;
+    opacity: 0.72;
+    margin: 0;
+  }
+
+  /* Grid */
+  .scent-family__grid {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .scent-family__grid--desktop-4 {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .scent-family__grid--desktop-3 {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .scent-family__grid--desktop-2 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Card */
+  .scent-family__card-wrap {
+    display: flex;
+    width: 100%;
+  }
+
+  .scent-family__card {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    background: var(--sf-card-bg);
+    border: 1px solid var(--sf-card-border);
+    border-radius: 0px;
+    text-decoration: none;
+    color: currentColor;
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease, box-shadow 0.28s ease;
+  }
+
+  .scent-family__card:hover {
+    border-color: rgba(176, 141, 87, 0.45);
+    transform: translateY(-3px);
+  }
+
+  /* Image Container */
+  .scent-family__image-container {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    background: #111410;
+  }
+
+  .scent-family__image-container--square {
+    aspect-ratio: 1 / 1;
+  }
+
+  .scent-family__image-container--portrait {
+    aspect-ratio: 4 / 5;
+  }
+
+  .scent-family__image-container--landscape {
+    aspect-ratio: 4 / 3;
+  }
+
+  .scent-family__image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .scent-family__card:hover .scent-family__image {
+    transform: scale(1.04);
+  }
+
+  /* Badge */
+  .scent-family__badge {
+    position: absolute;
+    top: 1rem;
+    left: 1rem;
+    z-index: 2;
+    font-size: var(--sf-card-badge-size, 11px);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--sf-accent, #b08d57);
+    background: rgba(18, 20, 16, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    padding: 0.35rem 0.65rem;
+    border: 1px solid rgba(176, 141, 87, 0.25);
+    border-radius: 0px;
+    line-height: 1;
+  }
+
+  /* Placeholder Styling */
+  .scent-family__image-placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .scent-family__placeholder-bg {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .scent-family__placeholder-bg--woody {
+    background: radial-gradient(circle at center, #242b20 0%, #131711 100%);
+    color: #536348;
+  }
+
+  .scent-family__placeholder-bg--floral {
+    background: radial-gradient(circle at center, #2e2329 0%, #161214 100%);
+    color: #7a5063;
+  }
+
+  .scent-family__placeholder-bg--citrus {
+    background: radial-gradient(circle at center, #2c2b1e 0%, #15140d 100%);
+    color: #8c823e;
+  }
+
+  .scent-family__placeholder-bg--amber {
+    background: radial-gradient(circle at center, #2e241b 0%, #17110c 100%);
+    color: #8f653a;
+  }
+
+  .scent-family__placeholder-icon {
+    width: 48px;
+    height: 48px;
+    opacity: 0.6;
+    transition: transform 0.5s ease;
+  }
+
+  .scent-family__card:hover .scent-family__placeholder-icon {
+    transform: scale(1.08);
+  }
+
+  /* Card Content */
+  .scent-family__content {
+    padding: 1.5rem 1.35rem 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .scent-family__card-title {
+    font-family: var(--sf-font-serif);
+    font-size: var(--sf-card-title-size, 22px);
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: currentColor;
+    margin: 0;
+  }
+
+  .scent-family__card-notes {
+    font-size: var(--sf-card-notes-size, 13px);
+    line-height: 1.55;
+    color: currentColor;
+    opacity: 0.72;
+    margin: 0;
+  }
+
+  /* Responsive Queries */
+  @media screen and (max-width: 1024px) {
+    .scent-family__grid--desktop-4 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .scent-family__wrapper {
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+    }
+
+    .scent-family__header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .scent-family__header-right {
+      max-width: 100%;
+    }
+
+    .scent-family__grid--mobile-1 {
+      grid-template-columns: 1fr;
+    }
+
+    .scent-family__grid--mobile-2 {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.85rem;
+    }
+
+    .scent-family__content {
+      padding: 1.25rem 1rem 1.5rem;
+    }
+
+    .scent-family__grid--mobile-2 .scent-family__content {
+      padding: 1rem 0.75rem 1.25rem;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Shop by Scent Family",
+  "tag": "section",
+  "class": "section-scent-family-grid",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Theme color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "collection_list",
+      "id": "collection_list",
+      "label": "Collections",
+      "info": "Select collections here for quick setup, or leave blank to customize each card individually using the blocks below."
+    },
+    {
+      "type": "header",
+      "content": "Section Header"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow tag",
+      "default": "THE TAXONOMY"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop by Scent Family"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Right-side description",
+      "default": "A pure olfactive catalog arranged by raw botanicals, volatile leaf oils, and aged balsamic resins."
+    },
+    {
+      "type": "header",
+      "content": "Grid & Image Layout"
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "Columns on desktop",
+      "options": [
+        { "value": "2", "label": "2 Columns" },
+        { "value": "3", "label": "3 Columns" },
+        { "value": "4", "label": "4 Columns" }
+      ],
+      "default": "4"
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Columns on mobile",
+      "options": [
+        { "value": "1", "label": "1 Column" },
+        { "value": "2", "label": "2 Columns" }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "Image aspect ratio",
+      "options": [
+        { "value": "square", "label": "Square (1:1)" },
+        { "value": "portrait", "label": "Portrait (4:5)" },
+        { "value": "landscape", "label": "Landscape (4:3)" }
+      ],
+      "default": "portrait"
+    },
+    {
+      "type": "header",
+      "content": "Typography & Font Sizes"
+    },
+    {
+      "type": "range",
+      "id": "eyebrow_size",
+      "min": 9,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Eyebrow font size",
+      "default": 11
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 20,
+      "max": 56,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading font size",
+      "default": 42
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "min": 11,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Header description font size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "card_badge_size",
+      "min": 8,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "label": "Card badge font size",
+      "default": 11
+    },
+    {
+      "type": "range",
+      "id": "card_title_size",
+      "min": 16,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "label": "Card title font size",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "card_notes_size",
+      "min": 10,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Card notes font size",
+      "default": 13
+    },
+    {
+      "type": "header",
+      "content": "Section Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 64
+    }
+  ],
+  "blocks": [
+    {
+      "type": "scent_family",
+      "name": "Scent Family Card",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "Collection"
+        },
+        {
+          "type": "text",
+          "id": "badge",
+          "label": "Badge label (optional)"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Custom image (optional)",
+          "info": "Leave blank to use the collection's featured image."
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Custom title (optional)",
+          "info": "Leave blank to use the collection's title."
+        },
+        {
+          "type": "textarea",
+          "id": "notes",
+          "label": "Custom description (optional)",
+          "info": "Leave blank to use the collection's description."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Custom link (optional)",
+          "info": "Leave blank to link directly to the collection."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Shop by Scent Family",
+      "blocks": [
+        {
+          "type": "scent_family"
+        },
+        {
+          "type": "scent_family"
+        },
+        {
+          "type": "scent_family"
+        },
+        {
+          "type": "scent_family"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

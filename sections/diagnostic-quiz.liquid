@@ -1,0 +1,565 @@
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  #diagnostic-quiz-{{ section.id }} {
+    --dq-heading-size: {{ section.settings.heading_size | default: 36 }}px;
+    --dq-description-size: {{ section.settings.description_size | default: 15 }}px;
+    --dq-eyebrow-size: {{ section.settings.eyebrow_size | default: 11 }}px;
+    --dq-step-size: {{ section.settings.step_size | default: 11 }}px;
+    --dq-chip-size: {{ section.settings.chip_size | default: 13 }}px;
+    --dq-button-size: {{ section.settings.button_size | default: 13 }}px;
+    {% if section.settings.custom_bg != blank and section.settings.custom_bg != 'rgba(0,0,0,0)' %}
+      background-color: {{ section.settings.custom_bg }};
+    {% endif %}
+    {% if section.settings.custom_card_bg != blank and section.settings.custom_card_bg != 'rgba(0,0,0,0)' %}
+      --dq-card-bg: {{ section.settings.custom_card_bg }};
+    {% endif %}
+    {% if section.settings.custom_text != blank and section.settings.custom_text != 'rgba(0,0,0,0)' %}
+      --dq-text: {{ section.settings.custom_text }};
+    {% endif %}
+    {% if section.settings.custom_accent != blank and section.settings.custom_accent != 'rgba(0,0,0,0)' %}
+      --dq-accent: {{ section.settings.custom_accent }};
+    {% endif %}
+    {% if section.settings.custom_border != blank and section.settings.custom_border != 'rgba(0,0,0,0)' %}
+      --dq-border: {{ section.settings.custom_border }};
+    {% endif %}
+  }
+{%- endstyle -%}
+
+<section
+  id="diagnostic-quiz-{{ section.id }}"
+  class="diagnostic-quiz color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding"
+>
+  <div class="page-width diagnostic-quiz__wrapper">
+    <div class="diagnostic-quiz__card">
+      <!-- Background Reticle / Compass Geometric SVG Watermark -->
+      <div class="diagnostic-quiz__reticle" aria-hidden="true">
+        <svg viewBox="0 0 240 240" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="120" cy="120" r="110" stroke="currentColor" stroke-width="1" stroke-opacity="0.35"/>
+          <circle cx="120" cy="120" r="75" stroke="currentColor" stroke-width="1" stroke-opacity="0.45"/>
+          <circle cx="120" cy="120" r="35" stroke="currentColor" stroke-width="1" stroke-opacity="0.55"/>
+          <line x1="120" y1="0" x2="120" y2="240" stroke="currentColor" stroke-width="1" stroke-opacity="0.35"/>
+          <line x1="0" y1="120" x2="240" y2="120" stroke="currentColor" stroke-width="1" stroke-opacity="0.35"/>
+          <circle cx="120" cy="120" r="4" fill="currentColor" fill-opacity="0.75"/>
+        </svg>
+      </div>
+
+      <div class="diagnostic-quiz__content">
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="diagnostic-quiz__eyebrow">{{ section.settings.eyebrow }}</p>
+        {%- endif -%}
+
+        {%- if section.settings.heading != blank -%}
+          <h2 class="diagnostic-quiz__heading">{{ section.settings.heading }}</h2>
+        {%- endif -%}
+
+        {%- if section.settings.description != blank -%}
+          <p class="diagnostic-quiz__description">{{ section.settings.description }}</p>
+        {%- endif -%}
+
+        {%- if section.settings.step_label != blank -%}
+          <p class="diagnostic-quiz__step">{{ section.settings.step_label }}</p>
+        {%- endif -%}
+
+        <!-- Interactive Atmosphere Selection Chips -->
+        <div class="diagnostic-quiz__chips js-quiz-chips">
+          {%- if section.blocks.size > 0 -%}
+            {%- for block in section.blocks -%}
+              <button
+                type="button"
+                class="diagnostic-quiz__chip js-quiz-chip{% if forloop.first %} is-active{% endif %}"
+                data-index="{{ forloop.index0 }}"
+                {{ block.shopify_attributes }}
+              >
+                {{ block.settings.title }}
+              </button>
+            {%- endfor -%}
+          {%- else -%}
+            {%- assign default_chips = 'Mossy Woodland,Sunlit Orchard,Ancient Hearth,Coastal Fog' | split: ',' -%}
+            {%- for chip in default_chips -%}
+              <button
+                type="button"
+                class="diagnostic-quiz__chip js-quiz-chip{% if forloop.first %} is-active{% endif %}"
+              >
+                {{ chip }}
+              </button>
+            {%- endfor -%}
+          {%- endif -%}
+        </div>
+
+        <!-- Action Row -->
+        <div class="diagnostic-quiz__actions">
+          {%- if section.settings.button_label != blank -%}
+            <a href="{{ section.settings.button_link | default: '#' }}" class="diagnostic-quiz__button">
+              <span>{{ section.settings.button_label }}</span>
+              <svg width="15" height="15" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M1 8H14M14 8L8.5 2.5M14 8L8.5 13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          {%- endif -%}
+
+          {%- if section.settings.time_estimate != blank -%}
+            <span class="diagnostic-quiz__time-estimate">{{ section.settings.time_estimate }}</span>
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600&display=swap');
+
+  .diagnostic-quiz {
+    --dq-font-serif: 'Newsreader', Georgia, serif;
+    --dq-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --dq-card-bg: #1c1f17;
+    --dq-text: #ede8dd;
+    --dq-muted: #a9a697;
+    --dq-accent: #b08d57;
+    --dq-border: #3a3d30;
+    font-family: var(--dq-font-sans);
+    color: var(--dq-text);
+    background-color: #12140f;
+    position: relative;
+    width: 100%;
+  }
+
+  .diagnostic-quiz__wrapper {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+
+  .diagnostic-quiz__card {
+    position: relative;
+    background: var(--dq-card-bg, #1c1f17);
+    border: 1px solid var(--dq-border, #3a3d30);
+    border-radius: 0px;
+    padding: clamp(2rem, 5vw, 4rem) clamp(1.5rem, 5vw, 4rem);
+    overflow: hidden;
+  }
+
+  .diagnostic-quiz__reticle {
+    position: absolute;
+    right: 2%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: clamp(220px, 32vw, 380px);
+    height: clamp(220px, 32vw, 380px);
+    color: var(--dq-accent, #b08d57);
+    opacity: 0.38;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .diagnostic-quiz__reticle svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .diagnostic-quiz__content {
+    position: relative;
+    z-index: 1;
+    max-width: 680px;
+  }
+
+  .diagnostic-quiz__eyebrow {
+    font-size: var(--dq-eyebrow-size, 11px);
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--dq-accent, #b08d57);
+    margin: 0 0 1rem 0;
+  }
+
+  .diagnostic-quiz__heading {
+    font-family: var(--dq-font-serif);
+    font-size: var(--dq-heading-size, clamp(1.8rem, 3.8vw, 2.6rem));
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    line-height: 1.18;
+    color: var(--dq-text, #ede8dd);
+    margin: 0 0 1rem 0;
+  }
+
+  .diagnostic-quiz__description {
+    font-size: var(--dq-description-size, 15px);
+    line-height: 1.6;
+    color: var(--dq-muted, #a9a697);
+    margin: 0 0 2.25rem 0;
+    max-width: 48ch;
+  }
+
+  .diagnostic-quiz__step {
+    font-size: var(--dq-step-size, 11px);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dq-muted, #a9a697);
+    margin: 0 0 1rem 0;
+  }
+
+  .diagnostic-quiz__chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 2.25rem;
+  }
+
+  .diagnostic-quiz__chip {
+    padding: 0.85rem 1.4rem;
+    border-radius: 0px;
+    border: 1px solid var(--dq-border, #3a3d30);
+    background: transparent;
+    color: var(--dq-muted, #a9a697);
+    font-family: var(--dq-font-sans);
+    font-size: var(--dq-chip-size, 13px);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    user-select: none;
+  }
+
+  .diagnostic-quiz__chip:hover {
+    border-color: var(--dq-accent, #b08d57);
+    color: var(--dq-text, #ede8dd);
+    background: rgba(176, 141, 87, 0.05);
+  }
+
+  .diagnostic-quiz__chip.is-active {
+    border-color: var(--dq-accent, #b08d57);
+    background: rgba(176, 141, 87, 0.12);
+    color: var(--dq-text, #ede8dd);
+  }
+
+  .diagnostic-quiz__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem 1.75rem;
+  }
+
+  .diagnostic-quiz__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.95rem 1.75rem;
+    border-radius: 0px;
+    background: var(--dq-accent, #b08d57);
+    color: #12140f;
+    font-family: var(--dq-font-sans);
+    font-size: var(--dq-button-size, 13px);
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.25s ease, transform 0.25s ease;
+  }
+
+  .diagnostic-quiz__button:hover {
+    background: #9e7d4b;
+    transform: translateX(2px);
+  }
+
+  .diagnostic-quiz__time-estimate {
+    font-size: calc(var(--dq-button-size, 13px) * 0.88);
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--dq-muted, #a9a697);
+    opacity: 0.75;
+  }
+
+  @media screen and (max-width: 749px) {
+    .diagnostic-quiz__card {
+      padding: 2rem 1.25rem;
+    }
+
+    .diagnostic-quiz__reticle {
+      right: -20px;
+      top: 15%;
+      width: 180px;
+      height: 180px;
+      opacity: 0.2;
+    }
+
+    .diagnostic-quiz__heading {
+      font-size: clamp(1.6rem, 6.2vw, 2.1rem);
+      margin-bottom: 0.75rem;
+    }
+
+    .diagnostic-quiz__description {
+      font-size: clamp(0.85rem, 3.8vw, 0.95rem);
+      margin-bottom: 1.75rem;
+    }
+
+    .diagnostic-quiz__chips {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.6rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .diagnostic-quiz__chip {
+      padding: 0.75rem 0.85rem;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    .diagnostic-quiz__actions {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.85rem;
+    }
+
+    .diagnostic-quiz__button {
+      width: 100%;
+      justify-content: center;
+      padding: 0.85rem 1.4rem;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    function initDiagnosticQuiz(sectionEl) {
+      if (!sectionEl) return;
+      const chips = Array.from(sectionEl.querySelectorAll('.js-quiz-chip'));
+      chips.forEach((chip) => {
+        chip.addEventListener('click', () => {
+          chips.forEach((c) => c.classList.remove('is-active'));
+          chip.classList.add('is-active');
+        });
+      });
+    }
+
+    function setup() {
+      const section = document.querySelector('#diagnostic-quiz-{{ section.id }}');
+      if (section) initDiagnosticQuiz(section);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setup);
+    } else {
+      setup();
+    }
+
+    document.addEventListener('shopify:section:load', (event) => {
+      if (event.detail && event.detail.sectionId === '{{ section.id }}') {
+        const section = document.querySelector('#diagnostic-quiz-{{ section.id }}');
+        if (section) initDiagnosticQuiz(section);
+      }
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Diagnostic Scent Quiz",
+  "tag": "section",
+  "class": "section-diagnostic-quiz",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Theme color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow tag",
+      "default": "DIAGNOSTIC INSCRIPTION"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Not sure where to start?"
+    },
+    {
+      "type": "textarea",
+      "id": "description",
+      "label": "Description",
+      "default": "Answer three questions to be matched with your botanical archetype and seasonal balance formulation."
+    },
+    {
+      "type": "text",
+      "id": "step_label",
+      "label": "Step prompt",
+      "default": "STEP 01 — WHICH ATMOSPHERE CALLS TO YOU?"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "TAKE THE SCENT QUIZ →"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button link"
+    },
+    {
+      "type": "text",
+      "id": "time_estimate",
+      "label": "Time estimate label",
+      "default": "APPROX. 90 SECONDS"
+    },
+    {
+      "type": "header",
+      "content": "Typography & Font Sizes"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 20,
+      "max": 64,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading font size",
+      "default": 36
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Description font size",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "eyebrow_size",
+      "min": 9,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Eyebrow font size",
+      "default": 11
+    },
+    {
+      "type": "range",
+      "id": "step_size",
+      "min": 9,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Step prompt font size",
+      "default": 11
+    },
+    {
+      "type": "range",
+      "id": "chip_size",
+      "min": 10,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Atmosphere chips font size",
+      "default": 13
+    },
+    {
+      "type": "range",
+      "id": "button_size",
+      "min": 10,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Button font size",
+      "default": 13
+    },
+    {
+      "type": "header",
+      "content": "Custom Color Overrides (Optional)"
+    },
+    {
+      "type": "color",
+      "id": "custom_bg",
+      "label": "Outer section background"
+    },
+    {
+      "type": "color",
+      "id": "custom_card_bg",
+      "label": "Card surface background"
+    },
+    {
+      "type": "color",
+      "id": "custom_text",
+      "label": "Text color"
+    },
+    {
+      "type": "color",
+      "id": "custom_accent",
+      "label": "Accent / button color"
+    },
+    {
+      "type": "color",
+      "id": "custom_border",
+      "label": "Border / hairline color"
+    },
+    {
+      "type": "header",
+      "content": "Section Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 64
+    }
+  ],
+  "blocks": [
+    {
+      "type": "atmosphere_option",
+      "name": "Atmosphere chip option",
+      "settings": [
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Atmosphere name",
+          "default": "Mossy Woodland"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Diagnostic Scent Quiz",
+      "blocks": [
+        { "type": "atmosphere_option", "settings": { "title": "Mossy Woodland" } },
+        { "type": "atmosphere_option", "settings": { "title": "Sunlit Orchard" } },
+        { "type": "atmosphere_option", "settings": { "title": "Ancient Hearth" } },
+        { "type": "atmosphere_option", "settings": { "title": "Coastal Fog" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

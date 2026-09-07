@@ -1,0 +1,318 @@
+{%- style -%}
+  .section-{{ section.id }}-padding {
+    padding-top: {{ section.settings.padding_top | times: 0.75 | round: 0 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | times: 0.75 | round: 0 }}px;
+  }
+
+  @media screen and (min-width: 750px) {
+    .section-{{ section.id }}-padding {
+      padding-top: {{ section.settings.padding_top }}px;
+      padding-bottom: {{ section.settings.padding_bottom }}px;
+    }
+  }
+
+  #apothecary-provenance-{{ section.id }} {
+    --ap-eyebrow-size: {{ section.settings.eyebrow_size | default: 11 }}px;
+    --ap-heading-size: {{ section.settings.heading_size | default: 22 }}px;
+    --ap-text-size: {{ section.settings.text_size | default: 14 }}px;
+  }
+{%- endstyle -%}
+
+<section
+  id="apothecary-provenance-{{ section.id }}"
+  class="apothecary-provenance color-{{ section.settings.color_scheme }} gradient section-{{ section.id }}-padding"
+>
+  <div class="page-width apothecary-provenance__wrapper">
+    <div class="apothecary-provenance__grid apothecary-provenance__grid--{{ section.settings.columns_desktop }}-col">
+      {%- for block in section.blocks -%}
+        <div class="apothecary-provenance__column" {{ block.shopify_attributes }}>
+          {%- if block.settings.eyebrow != blank -%}
+            <p class="apothecary-provenance__eyebrow">{{ block.settings.eyebrow }}</p>
+          {%- endif -%}
+
+          {%- if block.settings.heading != blank -%}
+            <h3 class="apothecary-provenance__heading">{{ block.settings.heading }}</h3>
+          {%- endif -%}
+
+          {%- if block.settings.text != blank -%}
+            <div class="apothecary-provenance__text">{{ block.settings.text }}</div>
+          {%- endif -%}
+        </div>
+      {%- endfor -%}
+    </div>
+  </div>
+</section>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600&display=swap');
+
+  .apothecary-provenance {
+    --ap-font-serif: 'Newsreader', Georgia, serif;
+    --ap-font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+    --ap-accent: #b08d57;
+    --ap-hairline: rgba(255, 255, 255, 0.12);
+    font-family: var(--ap-font-sans);
+    position: relative;
+    width: 100%;
+    border-top: 1px solid var(--ap-hairline);
+    border-bottom: 1px solid var(--ap-hairline);
+  }
+
+  .apothecary-provenance__wrapper {
+    max-width: 1300px;
+    margin: 0 auto;
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+
+  .apothecary-provenance__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .apothecary-provenance__grid--2-col {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .apothecary-provenance__grid--4-col {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .apothecary-provenance__column {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 2rem 2.5rem;
+    position: relative;
+  }
+
+  /* Vertical divider between columns */
+  .apothecary-provenance__column:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: 10%;
+    height: 80%;
+    width: 1px;
+    background: var(--ap-hairline);
+  }
+
+  .apothecary-provenance__column:first-child {
+    padding-left: 0;
+  }
+
+  .apothecary-provenance__column:last-child {
+    padding-right: 0;
+  }
+
+  .apothecary-provenance__eyebrow {
+    font-size: var(--ap-eyebrow-size, 11px);
+    font-weight: 600;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ap-accent, #b08d57);
+    margin: 0 0 0.85rem 0;
+  }
+
+  .apothecary-provenance__heading {
+    font-family: var(--ap-font-serif);
+    font-size: var(--ap-heading-size, clamp(1.2rem, 2vw, 1.45rem));
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    line-height: 1.28;
+    color: currentColor;
+    margin: 0 0 0.85rem 0;
+  }
+
+  .apothecary-provenance__text {
+    font-size: var(--ap-text-size, 14px);
+    line-height: 1.6;
+    color: currentColor;
+    opacity: 0.75;
+    margin: 0;
+    max-width: 38ch;
+  }
+
+  .apothecary-provenance__text p {
+    margin: 0;
+  }
+
+  @media screen and (max-width: 989px) {
+    .apothecary-provenance__column {
+      padding: 1.5rem 1.75rem;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .apothecary-provenance__wrapper {
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+    }
+
+    .apothecary-provenance__grid {
+      grid-template-columns: 1fr;
+    }
+
+    .apothecary-provenance__column {
+      padding: 2rem 0;
+    }
+
+    .apothecary-provenance__column:not(:last-child) {
+      border-bottom: 1px solid var(--ap-hairline);
+    }
+
+    .apothecary-provenance__column:not(:last-child)::after {
+      display: none;
+    }
+
+    .apothecary-provenance__heading {
+      font-size: 1.25rem;
+    }
+
+    .apothecary-provenance__text {
+      max-width: 100%;
+    }
+  }
+</style>
+
+{% schema %}
+{
+  "name": "Apothecary Provenance",
+  "tag": "section",
+  "class": "section-apothecary-provenance",
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Theme color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "select",
+      "id": "columns_desktop",
+      "label": "Columns on desktop",
+      "options": [
+        { "value": "2", "label": "2 Columns" },
+        { "value": "3", "label": "3 Columns" },
+        { "value": "4", "label": "4 Columns" }
+      ],
+      "default": "3"
+    },
+    {
+      "type": "header",
+      "content": "Typography & Font Sizes"
+    },
+    {
+      "type": "range",
+      "id": "eyebrow_size",
+      "min": 9,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Eyebrow font size",
+      "default": 11
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 16,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading font size",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "text_size",
+      "min": 11,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Description font size",
+      "default": 14
+    },
+    {
+      "type": "header",
+      "content": "Section Padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "feature_column",
+      "name": "Info Column",
+      "settings": [
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "Eyebrow tag",
+          "default": "ORIGIN"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Hand-poured in Vermont"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Description",
+          "default": "Blended and aged under ambient mountain humidity in batches no greater than 80 liters per decant."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Apothecary Provenance",
+      "blocks": [
+        {
+          "type": "feature_column",
+          "settings": {
+            "eyebrow": "ORIGIN",
+            "heading": "Hand-poured in Vermont",
+            "text": "Blended and aged under ambient mountain humidity in batches no greater than 80 liters per decant."
+          }
+        },
+        {
+          "type": "feature_column",
+          "settings": {
+            "eyebrow": "FORMULATION",
+            "heading": "Cruelty-free & IFRA-compliant",
+            "text": "100% botanical isolates, macerated forest barks, and slow steam extractions. Free of synthetic phthalates."
+          }
+        },
+        {
+          "type": "feature_column",
+          "settings": {
+            "eyebrow": "VESSELS",
+            "heading": "Refillable glass, always",
+            "text": "Ultra-dense amber apothecary vessels created to block actinic light, crafted to endure generations of refills."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

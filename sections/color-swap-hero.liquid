@@ -1,0 +1,1027 @@
+<section
+  class="color-hero"
+  id="color-hero-{{ section.id }}"
+  style="
+    --hero-heading-size: {{ section.settings.heading_size | default: 42 }}px;
+    --hero-description-size: {{ section.settings.description_size | default: 15 }}px;
+    --hero-caption-size: {{ section.settings.caption_size | default: 14 }}px;
+    --hero-price-size: {{ section.settings.price_size | default: 22 }}px;
+    --hero-compare-price-size: {{ section.settings.compare_price_size | default: 15 }}px;
+    --hero-sizes-label-size: {{ section.settings.sizes_label_size | default: 13 }}px;
+  "
+>
+  <div class="color-hero__bg">
+    {% for block in section.blocks %}
+      {% assign bg = block.settings.bg_color %}
+      {% if bg == blank or bg == 'rgba(0,0,0,0)' %}
+        {% assign bg = '#e4c9a3' %}
+      {% endif %}
+      <div
+        class="color-hero__bg-layer js-bg-layer{% if forloop.first %} is-active{% endif %}"
+        data-index="{{ forloop.index0 }}"
+        data-block-id="{{ block.id }}"
+        style="background-color: {{ bg }};"
+        {{ block.shopify_attributes }}
+      ></div>
+    {% endfor %}
+    <div class="color-hero__vignette"></div>
+  </div>
+
+  <div class="color-hero__inner page-width">
+    {% assign first_block = section.blocks.first %}
+    <div class="color-hero__text">
+      <h1 class="color-hero__heading js-hero-heading">
+        {{ first_block.settings.heading | default: section.settings.heading }}
+      </h1>
+      <p class="color-hero__description js-hero-description">
+        {{ first_block.settings.description | default: section.settings.description }}
+      </p>
+      {% assign btn_text = first_block.settings.button_label
+        | default: section.settings.button_label
+        | default: 'Get the look'
+      %}
+      {% assign btn_link = first_block.settings.link | default: section.settings.button_link | default: '#' %}
+      <a href="{{ btn_link }}" class="color-hero__button js-hero-button">
+        <span class="js-hero-button-label">{{ btn_text }}</span>
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M1 7H13M13 7L7.5 1.5M13 7L7.5 12.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="color-hero__stage">
+      <div class="color-hero__products">
+        {% for block in section.blocks %}
+          <div
+            class="color-hero__product js-product{% if forloop.first %} is-active{% endif %}"
+            data-index="{{ forloop.index0 }}"
+            data-block-id="{{ block.id }}"
+            data-label="{{ block.settings.label | escape }}"
+            data-heading="{{ block.settings.heading | default: section.settings.heading | escape }}"
+            data-description="{{ block.settings.description | default: section.settings.description | escape }}"
+            data-button-label="{{ block.settings.button_label | default: section.settings.button_label | escape }}"
+            data-link="{{ block.settings.link | default: section.settings.button_link | default: '#' }}"
+            data-caption-1="{{ block.settings.caption_line_1 | default: section.settings.caption_line_1 | escape }}"
+            data-caption-2="{{ block.settings.caption_line_2 | default: section.settings.caption_line_2 | escape }}"
+            data-price="{{ block.settings.price | default: section.settings.price | escape }}"
+            data-compare-price="{{ block.settings.compare_price | default: section.settings.compare_price | escape }}"
+            data-sizes-label="{{ block.settings.sizes_label | default: section.settings.sizes_label | escape }}"
+            data-sizes="{{ block.settings.sizes | default: section.settings.sizes | escape }}"
+          >
+            {% if block.settings.product_image != blank %}
+              {{
+                block.settings.product_image
+                | image_url: width: 800
+                | image_tag: loading: 'lazy', class: 'color-hero__product-img', alt: block.settings.label
+              }}
+            {% else %}
+              <div class="color-hero__placeholder">{{ block.settings.label | default: 'Product' }}</div>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="color-hero__caption" style="font-size: {{ section.settings.caption_size | default: 14 }}px;">
+        <span class="js-caption-1">
+          {{- first_block.settings.caption_line_1 | default: section.settings.caption_line_1 -}}
+        </span>
+        <span class="js-caption-2">
+          {{- first_block.settings.caption_line_2 | default: section.settings.caption_line_2 -}}
+        </span>
+      </div>
+    </div>
+
+    <div class="color-hero__details">
+      <div class="color-hero__price">
+        <span class="color-hero__price-current js-price-current">
+          {{ first_block.settings.price | default: section.settings.price }}
+        </span>
+        <span class="color-hero__price-compare js-price-compare">
+          {{ first_block.settings.compare_price | default: section.settings.compare_price }}
+        </span>
+      </div>
+
+      <div class="color-hero__sizes">
+        <p class="color-hero__sizes-label js-sizes-label">
+          {{ first_block.settings.sizes_label | default: section.settings.sizes_label }}
+        </p>
+        <div class="color-hero__size-list js-size-list">
+          {% assign sizes_str = first_block.settings.sizes | default: section.settings.sizes %}
+          {% if sizes_str != blank %}
+            {% assign sizes = sizes_str | split: ',' %}
+            {% for size in sizes %}
+              <button type="button" class="color-hero__size{% if forloop.first %} is-active{% endif %}">
+                {{ size | strip }}
+              </button>
+            {% endfor %}
+          {% endif %}
+        </div>
+        {% if section.settings.simple_text != blank %}
+          <div class="color-hero__simple-text">{{ section.settings.simple_text }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Arrows: bottom of the section, spans full width, centered -->
+    <div class="color-hero__nav-row">
+      <button type="button" class="color-hero__nav js-prev" aria-label="Previous color">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M15 5L8 12L15 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button type="button" class="color-hero__nav js-next" aria-label="Next color">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M9 5L16 12L9 19" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <button type="button" class="color-hero__swatch-preview js-swatch-preview" aria-label="Switch to next color">
+      <img class="js-swatch-preview-img" src="" alt="" width="70" height="70" loading="lazy">
+    </button>
+  </div>
+</section>
+
+<style>
+  .color-hero {
+    --color-hero-text: #17181a;
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    overflow: hidden;
+    isolation: isolate;
+    transition: background-color 0.7s ease;
+  }
+
+  /* Background crossfade layers — pure CSS transition, driven only by .is-active */
+  .color-hero__bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .color-hero__bg-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 0.7s ease;
+  }
+
+  .color-hero__bg-layer.is-active {
+    opacity: 1;
+  }
+
+  .color-hero__vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(60% 55% at 50% 38%, rgba(255, 255, 255, 0.12) 0%, rgba(0, 0, 0, 0) 60%),
+      radial-gradient(120% 90% at 50% 100%, rgba(0, 0, 0, 0.25) 0%, rgba(0, 0, 0, 0) 55%);
+    pointer-events: none;
+  }
+
+  .color-hero__inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    grid-template-columns: 1fr 1.1fr 1fr;
+    grid-template-rows: 1fr auto;
+    align-items: center;
+    min-height: 100vh;
+    gap: 1.5rem 2rem;
+    padding-top: 4rem;
+    padding-bottom: 3rem;
+  }
+
+  /* Text column */
+  .color-hero__text {
+    grid-column: 1;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+  }
+
+  .color-hero__heading {
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    font-size: var(--hero-heading-size, clamp(2rem, 3.4vw, 3.2rem));
+    line-height: 1.15;
+    margin: 0;
+    color: var(--color-hero-text, #17181a);
+  }
+
+  .color-hero__description {
+    max-width: 34ch;
+    font-size: var(--hero-description-size, 0.95rem);
+    line-height: 1.6;
+    margin: 0;
+    color: var(--color-hero-text, #17181a);
+    opacity: 0.8;
+  }
+
+  .color-hero__button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.85rem 1.6rem;
+    border-radius: 999px;
+    background: #14151a;
+    color: #ffffff;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: transform 0.25s ease, background 0.25s ease;
+  }
+
+  .color-hero__button:hover {
+    background: #2b2d35;
+    transform: translateX(2px);
+  }
+
+  /* Product stage */
+  .color-hero__stage {
+    grid-column: 2;
+    grid-row: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 56vh;
+    min-height: 360px;
+  }
+
+  .color-hero__products {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Product transition — diagonal slide, matching the reference video:
+     the outgoing garment shrinks and drifts up-left off the top while fading,
+     the incoming garment grows in from the bottom-right corner while fading in
+     (reversed when navigating backward). */
+  .color-hero__product {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.9);
+    transform-origin: center center;
+    pointer-events: none;
+  }
+
+  .color-hero__product.is-active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+  }
+
+  .color-hero__product.is-exiting-forward {
+    animation: colorHeroExitForward 0.7s cubic-bezier(0.45, 0, 0.55, 1) forwards;
+  }
+
+  .color-hero__product.is-entering-forward {
+    animation: colorHeroEnterForward 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+
+  .color-hero__product.is-exiting-backward {
+    animation: colorHeroExitBackward 0.7s cubic-bezier(0.45, 0, 0.55, 1) forwards;
+  }
+
+  .color-hero__product.is-entering-backward {
+    animation: colorHeroEnterBackward 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+  }
+
+  @keyframes colorHeroExitForward {
+    from {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translate(-14%, -135%) scale(0.5);
+    }
+  }
+
+  @keyframes colorHeroEnterForward {
+    from {
+      opacity: 0;
+      transform: translate(46%, 60%) scale(0.5);
+    }
+    to {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+  }
+
+  @keyframes colorHeroExitBackward {
+    from {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+    to {
+      opacity: 0;
+      transform: translate(14%, 135%) scale(0.5);
+    }
+  }
+
+  @keyframes colorHeroEnterBackward {
+    from {
+      opacity: 0;
+      transform: translate(-46%, -60%) scale(0.5);
+    }
+    to {
+      opacity: 1;
+      transform: translate(0, 0) scale(1);
+    }
+  }
+
+  .color-hero__product-img {
+    max-width: 340px;
+    width: 80%;
+    height: auto;
+    filter: drop-shadow(0 25px 30px rgba(0, 0, 0, 0.3));
+    mix-blend-mode: multiply;
+  }
+
+  .color-hero__placeholder {
+    padding: 3rem 2rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.6);
+    font-weight: 600;
+    color: #17181a;
+  }
+
+  .color-hero__caption {
+    margin-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    font-size: var(--hero-caption-size, 0.9rem);
+    font-weight: 500;
+    color: var(--color-hero-text, #17181a);
+    line-height: 1.4;
+  }
+
+  /* Details column */
+  .color-hero__details {
+    grid-column: 3;
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1.5rem;
+    text-align: right;
+    color: var(--color-hero-text, #17181a);
+  }
+
+  .color-hero__price {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.2rem;
+  }
+
+  .color-hero__price-current {
+    font-size: var(--hero-price-size, 1.4rem);
+    font-weight: 700;
+  }
+
+  .color-hero__price-compare {
+    font-size: var(--hero-compare-price-size, 0.95rem);
+    text-decoration: line-through;
+    opacity: 0.5;
+  }
+
+  .color-hero__sizes-label {
+    margin: 0 0 0.6rem;
+    font-size: var(--hero-sizes-label-size, 0.8rem);
+    opacity: 0.7;
+  }
+
+  .color-hero__size-list {
+    display: flex;
+    gap: 0.5rem;
+  }
+
+  .color-hero__size {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.35);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: inherit;
+    cursor: pointer;
+    transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .color-hero__size.is-active {
+    background: #14151a;
+    border-color: #14151a;
+    color: #fff;
+  }
+
+  .color-hero__simple-text {
+    font-size: var(--hero-sizes-label-size, 0.85rem);
+    line-height: 1.5;
+    opacity: 0.8;
+    color: var(--color-hero-text, #17181a);
+    max-width: 30ch;
+  }
+  .color-hero__simple-text p {
+    margin: 0;
+  }
+
+  /* Nav arrows — bottom of the section, spanning full width, centered */
+  .color-hero__nav-row {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .color-hero__nav {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.65);
+    color: #17181a;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+
+  .color-hero__nav:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: scale(1.05);
+  }
+
+  /* Floating swatch preview */
+  .color-hero__swatch-preview {
+    position: absolute;
+    right: clamp(1rem, 3vw, 3rem);
+    bottom: clamp(3.5rem, 8vh, 6rem);
+    width: 70px;
+    height: 70px;
+    padding: 10px;
+    border-radius: 16px;
+    border: none;
+    background: rgba(255, 255, 255, 0.35);
+    backdrop-filter: blur(6px);
+    cursor: pointer;
+    z-index: 2;
+    transition: transform 0.25s ease;
+  }
+
+  .color-hero__swatch-preview:hover {
+    transform: translateY(-3px) scale(1.05);
+  }
+
+  .color-hero__swatch-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.25));
+  }
+
+  @media screen and (max-width: 989px) {
+    .color-hero {
+      min-height: auto;
+    }
+
+    .color-hero__inner {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto auto;
+      padding-top: 3.5rem;
+      padding-bottom: 3rem;
+      min-height: auto;
+      gap: 2rem;
+    }
+
+    .color-hero__text,
+    .color-hero__stage,
+    .color-hero__details,
+    .color-hero__nav-row {
+      grid-column: 1;
+    }
+
+    .color-hero__text {
+      grid-row: 1;
+      align-items: center;
+      text-align: center;
+    }
+
+    .color-hero__heading {
+      font-size: clamp(1.85rem, 5vw, var(--hero-heading-size, 2.8rem));
+    }
+
+    .color-hero__stage {
+      grid-row: 2;
+      height: 44vh;
+      min-height: 280px;
+      max-height: 420px;
+    }
+
+    .color-hero__product-img {
+      max-width: 280px;
+    }
+
+    .color-hero__details {
+      grid-row: 3;
+      align-items: center;
+      text-align: center;
+      gap: 1.25rem;
+    }
+
+    .color-hero__price {
+      align-items: center;
+    }
+
+    .color-hero__nav-row {
+      grid-row: 4;
+      margin-top: 0.5rem;
+    }
+
+    .color-hero__description {
+      max-width: 44ch;
+    }
+
+    .color-hero__swatch-preview {
+      width: 56px;
+      height: 56px;
+      right: 1.5rem;
+      bottom: 2rem;
+    }
+  }
+
+  @media screen and (max-width: 749px) {
+    .color-hero__inner {
+      padding-top: 2.5rem;
+      padding-bottom: 2.5rem;
+      padding-left: 1.25rem;
+      padding-right: 1.25rem;
+      gap: 1.5rem;
+    }
+
+    .color-hero__heading {
+      font-size: clamp(1.6rem, 6.5vw, 2.2rem);
+      line-height: 1.2;
+    }
+
+    .color-hero__description {
+      font-size: clamp(0.85rem, 3.8vw, 0.95rem);
+      max-width: 36ch;
+    }
+
+    .color-hero__stage {
+      height: 38vh;
+      min-height: 240px;
+      max-height: 340px;
+    }
+
+    .color-hero__product-img {
+      max-width: 230px;
+      width: 72%;
+    }
+
+    .color-hero__button {
+      padding: 0.75rem 1.4rem;
+      font-size: 0.82rem;
+    }
+
+    .color-hero__swatch-preview {
+      width: 48px;
+      height: 48px;
+      padding: 6px;
+      right: 1rem;
+      bottom: 1.5rem;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    function initColorHero(sectionEl) {
+      if (!sectionEl || sectionEl.dataset.initialized === 'true') return;
+      sectionEl.dataset.initialized = 'true';
+
+      const bgLayers = Array.from(sectionEl.querySelectorAll('.js-bg-layer'));
+      const products = Array.from(sectionEl.querySelectorAll('.js-product'));
+      const prevBtn = sectionEl.querySelector('.js-prev');
+      const nextBtn = sectionEl.querySelector('.js-next');
+      const sizeButtons = Array.from(sectionEl.querySelectorAll('.color-hero__size'));
+      const swatchPreviewBtn = sectionEl.querySelector('.js-swatch-preview');
+      const swatchPreviewImg = sectionEl.querySelector('.js-swatch-preview-img');
+      const priceCurrentEl = sectionEl.querySelector('.js-price-current');
+      const priceCompareEl = sectionEl.querySelector('.js-price-compare');
+
+      const total = products.length;
+      if (total === 0) return;
+
+      let currentIndex = 0;
+      let isAnimating = false;
+
+      function getProductImgSrc(index) {
+        const img = products[index] ? products[index].querySelector('img') : null;
+        return img ? img.currentSrc || img.src : '';
+      }
+
+      function updatePreview() {
+        const nextIndex = (currentIndex + 1) % total;
+        const src = getProductImgSrc(nextIndex);
+        if (swatchPreviewImg && src) {
+          swatchPreviewImg.src = src;
+          swatchPreviewImg.alt = products[nextIndex]?.dataset?.label || '';
+        }
+      }
+
+      function updateSlideData(index) {
+        const p = products[index];
+        if (!p) return;
+
+        // 1. Heading
+        const headingEl = sectionEl.querySelector('.js-hero-heading');
+        if (headingEl) {
+          headingEl.textContent = p.dataset.heading || '';
+          headingEl.style.display = p.dataset.heading ? '' : 'none';
+        }
+
+        // 2. Description
+        const descEl = sectionEl.querySelector('.js-hero-description');
+        if (descEl) {
+          descEl.textContent = p.dataset.description || '';
+          descEl.style.display = p.dataset.description ? '' : 'none';
+        }
+
+        // 3. Button Label & Link
+        const btnEl = sectionEl.querySelector('.js-hero-button');
+        const btnLabelEl = sectionEl.querySelector('.js-hero-button-label');
+        if (btnEl) {
+          if (btnLabelEl && p.dataset.buttonLabel) {
+            btnLabelEl.textContent = p.dataset.buttonLabel;
+          }
+          if (p.dataset.link) {
+            btnEl.href = p.dataset.link;
+          }
+          btnEl.style.display = p.dataset.buttonLabel ? 'inline-flex' : 'none';
+        }
+
+        // 4. Captions
+        const cap1El = sectionEl.querySelector('.js-caption-1');
+        const cap2El = sectionEl.querySelector('.js-caption-2');
+        if (cap1El) cap1El.textContent = p.dataset.caption1 || '';
+        if (cap2El) cap2El.textContent = p.dataset.caption2 || '';
+
+        // 5. Price & Compare Price
+        if (priceCurrentEl) {
+          priceCurrentEl.textContent = p.dataset.price || '';
+          priceCurrentEl.style.display = p.dataset.price ? '' : 'none';
+        }
+        if (priceCompareEl) {
+          priceCompareEl.textContent = p.dataset.comparePrice || '';
+          priceCompareEl.style.display = p.dataset.comparePrice ? '' : 'none';
+        }
+
+        // 6. Sizes Label & Sizes list
+        const sizesLabelEl = sectionEl.querySelector('.js-sizes-label');
+        if (sizesLabelEl) {
+          sizesLabelEl.textContent = p.dataset.sizesLabel || '';
+          sizesLabelEl.style.display = p.dataset.sizesLabel ? '' : 'none';
+        }
+
+        const sizeListEl = sectionEl.querySelector('.js-size-list');
+        if (sizeListEl) {
+          const sizesStr = p.dataset.sizes || '';
+          if (sizesStr.trim()) {
+            const sizesArr = sizesStr.split(',');
+            sizeListEl.innerHTML = sizesArr
+              .map(
+                (s, i) =>
+                  `<button type="button" class="color-hero__size${i === 0 ? ' is-active' : ''}">${s.trim()}</button>`
+              )
+              .join('');
+            sizeListEl.querySelectorAll('.color-hero__size').forEach((btn) => {
+              btn.addEventListener('click', () => {
+                sizeListEl.querySelectorAll('.color-hero__size').forEach((b) => b.classList.remove('is-active'));
+                btn.classList.add('is-active');
+              });
+            });
+            sizeListEl.style.display = 'flex';
+          } else {
+            sizeListEl.innerHTML = '';
+            sizeListEl.style.display = 'none';
+          }
+        }
+      }
+
+      function goTo(newIndex, direction = 'forward') {
+        if (isAnimating) return;
+        const normalized = ((newIndex % total) + total) % total;
+        if (normalized === currentIndex) return;
+
+        isAnimating = true;
+
+        // Background — plain CSS opacity crossfade
+        bgLayers.forEach((bg, idx) => {
+          if (idx === normalized) {
+            bg.classList.add('is-active');
+          } else {
+            bg.classList.remove('is-active');
+          }
+        });
+
+        // Product — diagonal slide, direction-aware
+        const outgoing = products[currentIndex];
+        const incoming = products[normalized];
+        const exitClass = direction === 'backward' ? 'is-exiting-backward' : 'is-exiting-forward';
+        const enterClass = direction === 'backward' ? 'is-entering-backward' : 'is-entering-forward';
+
+        if (outgoing) {
+          outgoing.classList.remove('is-active');
+          outgoing.classList.add(exitClass);
+          outgoing.addEventListener('animationend', () => outgoing.classList.remove(exitClass), { once: true });
+        }
+
+        if (incoming) {
+          incoming.classList.add(enterClass);
+          incoming.addEventListener(
+            'animationend',
+            () => {
+              incoming.classList.remove(enterClass);
+              incoming.classList.add('is-active');
+              isAnimating = false;
+            },
+            { once: true }
+          );
+        } else {
+          isAnimating = false;
+        }
+
+        currentIndex = normalized;
+        updateSlideData(currentIndex);
+        updatePreview();
+      }
+
+      function selectBlock(targetIndex) {
+        if (targetIndex < 0 || targetIndex >= total || targetIndex === currentIndex) return;
+        isAnimating = false;
+        const direction = targetIndex >= currentIndex ? 'forward' : 'backward';
+        goTo(targetIndex, direction);
+      }
+
+      prevBtn && prevBtn.addEventListener('click', () => goTo(currentIndex - 1, 'backward'));
+      nextBtn && nextBtn.addEventListener('click', () => goTo(currentIndex + 1, 'forward'));
+      swatchPreviewBtn && swatchPreviewBtn.addEventListener('click', () => goTo(currentIndex + 1, 'forward'));
+
+      // Allow clicking active product image to navigate to link
+      products.forEach((p) => {
+        p.addEventListener('click', () => {
+          if (!p.classList.contains('is-active')) return;
+          const link = p.dataset.link;
+          if (link && link !== '#') {
+            window.location.href = link;
+          }
+        });
+      });
+
+      // Shopify Theme Editor: auto-switch slide when a block is clicked in customizer
+      document.addEventListener('shopify:block:select', (event) => {
+        if (!sectionEl.contains(event.target)) return;
+        const blockId = event.detail?.blockId || event.target?.dataset?.blockId;
+        const index = products.findIndex((p) => p.dataset.blockId === blockId);
+        if (index !== -1) {
+          selectBlock(index);
+        }
+      });
+
+      // Initial state
+      updateSlideData(currentIndex);
+      updatePreview();
+    }
+
+    function setup() {
+      const section = document.querySelector('#color-hero-{{ section.id }}');
+      if (section) initColorHero(section);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setup);
+    } else {
+      setup();
+    }
+
+    document.addEventListener('shopify:section:load', (event) => {
+      if (event.detail && event.detail.sectionId === '{{ section.id }}') {
+        const section = document.querySelector('#color-hero-{{ section.id }}');
+        if (section) {
+          section.dataset.initialized = 'false';
+          initColorHero(section);
+        }
+      }
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Color Swap Hero",
+  "tag": "section",
+  "class": "section-color-hero",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Typography & Font Sizes"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 18,
+      "max": 64,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading font size",
+      "default": 42
+    },
+    {
+      "type": "range",
+      "id": "description_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Description font size",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "caption_size",
+      "min": 10,
+      "max": 36,
+      "step": 1,
+      "unit": "px",
+      "label": "Caption font size",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "price_size",
+      "min": 14,
+      "max": 48,
+      "step": 1,
+      "unit": "px",
+      "label": "Price font size",
+      "default": 22
+    },
+    {
+      "type": "range",
+      "id": "compare_price_size",
+      "min": 10,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Compare-at price font size",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "sizes_label_size",
+      "min": 10,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Sizes / bottom label font size",
+      "default": 13
+    }
+  ],
+  "blocks": [
+    {
+      "type": "color_slide",
+      "name": "Item Data",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Product Image placeholder",
+          "default": "Warm Sand"
+        },
+        {
+          "type": "image_picker",
+          "id": "product_image",
+          "label": "Product image"
+        },
+        {
+          "type": "header",
+          "content": "Unique Slide Content"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Item Heading / Title",
+          "default": "Wear Confidence Define Your Style."
+        },
+        {
+          "type": "textarea",
+          "id": "description",
+          "label": "Item Description",
+          "default": "Discover premium T-shirts, hoodies, and sweatshirts designed for comfort, quality, and everyday expression."
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Item Button text",
+          "default": "Get the look"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Item Button link"
+        },
+        {
+          "type": "text",
+          "id": "caption_line_1",
+          "label": "Item Caption line 1",
+          "default": "Dress Better."
+        },
+        {
+          "type": "text",
+          "id": "caption_line_2",
+          "label": "Item Caption line 2",
+          "default": "Feel Better."
+        },
+        {
+          "type": "text",
+          "id": "price",
+          "label": "Item Price",
+          "default": "#10,000"
+        },
+        {
+          "type": "text",
+          "id": "compare_price",
+          "label": "Item Compare-at price",
+          "default": "#15,000"
+        },
+        {
+          "type": "text",
+          "id": "sizes_label",
+          "label": "Item Sizes label",
+          "default": "Choose your size"
+        },
+        {
+          "type": "text",
+          "id": "sizes",
+          "label": "Item Sizes (comma separated)",
+          "default": "XL, 2XL, 3XL, 4XL"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Color Swap Hero",
+      "blocks": [
+        {
+          "type": "color_slide",
+          "settings": {
+            "label": "Warm Sand",
+            "heading": "Wear Confidence Define Your Style.",
+            "description": "Discover premium T-shirts, hoodies, and sweatshirts designed for comfort, quality, and everyday expression.",
+            "price": "#10,000",
+            "compare_price": "#15,000"
+          }
+        },
+        {
+          "type": "color_slide",
+          "settings": {
+            "label": "Sage",
+            "heading": "Artisanal Heritage in Every Thread.",
+            "description": "Crafted with quiet restraint and premium botanically dyed organic fabrics.",
+            "price": "#12,500",
+            "compare_price": "#18,000"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

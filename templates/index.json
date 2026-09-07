@@ -114,12 +114,193 @@
         "autoplay_speed": 5,
         "pause_on_hover": true
       }
+    },
+    "patron_ledger_section": {
+      "type": "patron-ledger",
+      "blocks": {
+        "press_1": {
+          "type": "press_item",
+          "settings": {
+            "title": "VOGUE LIVING"
+          }
+        },
+        "press_2": {
+          "type": "press_item",
+          "settings": {
+            "title": "THE WORLD OF INTERIORS"
+          }
+        },
+        "press_3": {
+          "type": "press_item",
+          "settings": {
+            "title": "KINFOLK FORMULARY"
+          }
+        }
+      },
+      "block_order": [
+        "press_1",
+        "press_2",
+        "press_3"
+      ],
+      "settings": {
+        "eyebrow": "PATRON LEDGER • FOLIO NO. 819",
+        "quote": "The one candle I've never let myself run out of. It fills the room with the quiet chill of autumn pine needles before rain.",
+        "author": "— ELEANOR V., BURLINGTON VT",
+        "author_subtext": "VERIFIED ARCHIVE PATRON",
+        "quote_size": 32,
+        "author_size": 13,
+        "eyebrow_size": 11,
+        "press_size": 11,
+        "padding_top": 64,
+        "padding_bottom": 64
+      }
+    },
+    "diagnostic_quiz_section": {
+      "type": "diagnostic-quiz",
+      "blocks": {
+        "chip_1": {
+          "type": "atmosphere_option",
+          "settings": {
+            "title": "Mossy Woodland"
+          }
+        },
+        "chip_2": {
+          "type": "atmosphere_option",
+          "settings": {
+            "title": "Sunlit Orchard"
+          }
+        },
+        "chip_3": {
+          "type": "atmosphere_option",
+          "settings": {
+            "title": "Ancient Hearth"
+          }
+        },
+        "chip_4": {
+          "type": "atmosphere_option",
+          "settings": {
+            "title": "Coastal Fog"
+          }
+        }
+      },
+      "block_order": [
+        "chip_1",
+        "chip_2",
+        "chip_3",
+        "chip_4"
+      ],
+      "settings": {
+        "eyebrow": "DIAGNOSTIC INSCRIPTION",
+        "heading": "Not sure where to start?",
+        "description": "Answer three questions to be matched with your botanical archetype and seasonal balance formulation.",
+        "step_label": "STEP 01 — WHICH ATMOSPHERE CALLS TO YOU?",
+        "button_label": "TAKE THE SCENT QUIZ →",
+        "time_estimate": "APPROX. 90 SECONDS",
+        "heading_size": 36,
+        "description_size": 15,
+        "eyebrow_size": 11,
+        "step_size": 11,
+        "chip_size": 13,
+        "button_size": 13,
+        "padding_top": 64,
+        "padding_bottom": 64
+      }
+    },
+    "provenance_info_section": {
+      "type": "apothecary-provenance",
+      "blocks": {
+        "col_1": {
+          "type": "feature_column",
+          "settings": {
+            "eyebrow": "ORIGIN",
+            "heading": "Hand-poured in Vermont",
+            "text": "Blended and aged under ambient mountain humidity in batches no greater than 80 liters per decant."
+          }
+        },
+        "col_2": {
+          "type": "feature_column",
+          "settings": {
+            "eyebrow": "FORMULATION",
+            "heading": "Cruelty-free & IFRA-compliant",
+            "text": "100% botanical isolates, macerated forest barks, and slow steam extractions. Free of synthetic phthalates."
+          }
+        },
+        "col_3": {
+          "type": "feature_column",
+          "settings": {
+            "eyebrow": "VESSELS",
+            "heading": "Refillable glass, always",
+            "text": "Ultra-dense amber apothecary vessels created to block actinic light, crafted to endure generations of refills."
+          }
+        }
+      },
+      "block_order": [
+        "col_1",
+        "col_2",
+        "col_3"
+      ],
+      "settings": {
+        "columns_desktop": "3",
+        "eyebrow_size": 11,
+        "heading_size": 22,
+        "text_size": 14,
+        "padding_top": 48,
+        "padding_bottom": 48
+      }
+    },
+    "scent_family_grid_section": {
+      "type": "scent-family-grid",
+      "blocks": {
+        "family_1": {
+          "type": "scent_family",
+          "settings": {}
+        },
+        "family_2": {
+          "type": "scent_family",
+          "settings": {}
+        },
+        "family_3": {
+          "type": "scent_family",
+          "settings": {}
+        },
+        "family_4": {
+          "type": "scent_family",
+          "settings": {}
+        }
+      },
+      "block_order": [
+        "family_1",
+        "family_2",
+        "family_3",
+        "family_4"
+      ],
+      "settings": {
+        "eyebrow": "THE TAXONOMY",
+        "heading": "Shop by Scent Family",
+        "description": "A pure olfactive catalog arranged by raw botanicals, volatile leaf oils, and aged balsamic resins.",
+        "columns_desktop": "4",
+        "columns_mobile": "1",
+        "image_ratio": "portrait",
+        "eyebrow_size": 11,
+        "heading_size": 42,
+        "description_size": 14,
+        "card_badge_size": 11,
+        "card_title_size": 22,
+        "card_notes_size": 13,
+        "padding_top": 64,
+        "padding_bottom": 64
+      }
     }
   },
   "order": [
     "product_slider_showcase_pJYem6",
+    "scent_family_grid_section",
+    "provenance_info_section",
+    "patron_ledger_section",
+    "diagnostic_quiz_section",
     "slideshow_g7AC9p",
     "featured_collection_KLUwt8",
     "featured_collection_4gA3ir"
   ]
 }
+
