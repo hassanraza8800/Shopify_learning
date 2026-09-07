@@ -20,7 +20,7 @@
             "heading": "Wear Confidence Define Your Style.",
             "description": "Redefine casual wear. Our thoughtfully crafted T-shirts, hoodies, and sweatshirts offer unmatched comfort and premium quality, empowering you to express your unique style every day.",
             "button_label": "Get the look",
-            "link": "",
+            "link": "shopify://products/pro-2-in-1-gaming-headset",
             "caption_line_1": "Dress Better.",
             "caption_line_2": "Feel Better.",
             "price": "",
@@ -37,13 +37,13 @@
             "heading": "Modern Geometry for Your Space",
             "description": "Brighten your home with these lightweight, geometric acrylic mirrors. Their clean, honeycomb design effortlessly opens up the room and brings a spacious, contemporary feel to blank walls.",
             "button_label": "Get the look",
-            "link": "",
-            "caption_line_1": "Dress Better.",
-            "caption_line_2": "Feel Better.",
-            "price": "#12,500",
-            "compare_price": "#18,000",
-            "sizes_label": "Choose your size",
-            "sizes": "XL, 2XL, 3XL, 4XL"
+            "link": "shopify://products/hexagon-style-acrylic-mirror-modern-home-decoration-13-pieces",
+            "caption_line_1": "",
+            "caption_line_2": "",
+            "price": "",
+            "compare_price": "",
+            "sizes_label": "",
+            "sizes": ""
           }
         }
       },
@@ -59,6 +59,50 @@
         "price_size": 22,
         "compare_price_size": 15,
         "sizes_label_size": 13
+      }
+    },
+    "apothecary_provenance_8Ptcbx": {
+      "type": "apothecary-provenance",
+      "blocks": {
+        "feature_column_NdTEAf": {
+          "type": "feature_column",
+          "settings": {
+            "eyebrow": "ORIGIN",
+            "heading": "Hand-poured in Vermont",
+            "text": "Blended and aged under ambient mountain humidity in batches no greater than 80 liters per decant."
+          }
+        },
+        "feature_column_AktVTr": {
+          "type": "feature_column",
+          "settings": {
+            "eyebrow": "FORMULATION",
+            "heading": "Cruelty-free & IFRA-compliant",
+            "text": "100% botanical isolates, macerated forest barks, and slow steam extractions. Free of synthetic phthalates."
+          }
+        },
+        "feature_column_MFcrXT": {
+          "type": "feature_column",
+          "settings": {
+            "eyebrow": "VESSELS",
+            "heading": "Refillable glass, always",
+            "text": "Ultra-dense amber apothecary vessels created to block actinic light, crafted to endure generations of refills."
+          }
+        }
+      },
+      "block_order": [
+        "feature_column_NdTEAf",
+        "feature_column_AktVTr",
+        "feature_column_MFcrXT"
+      ],
+      "name": "Apothecary Provenance",
+      "settings": {
+        "color_scheme": "",
+        "columns_desktop": "3",
+        "eyebrow_size": 11,
+        "heading_size": 22,
+        "text_size": 14,
+        "padding_top": 48,
+        "padding_bottom": 48
       }
     },
     "product_slider_showcase_pJYem6": {
@@ -173,9 +217,10 @@
   },
   "order": [
     "color_swap_hero_Ym4z7w",
-    "product_slider_showcase_pJYem6",
-    "slideshow_g7AC9p",
+    "apothecary_provenance_8Ptcbx",
     "featured_collection_KLUwt8",
-    "featured_collection_4gA3ir"
+    "featured_collection_4gA3ir",
+    "product_slider_showcase_pJYem6",
+    "slideshow_g7AC9p"
   ]
 }
