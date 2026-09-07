@@ -1,0 +1,684 @@
+{% comment %}
+  Product Slider Showcase
+  ------------------------
+  A product carousel where each slide swaps both the image AND the
+  detail panel (title, price, description) on the right — like the
+  Oasis Jacket example.
+
+  HOW TO INSTALL:
+  1. Shopify Admin → Online Store → Themes → Edit code
+  2. Sections → Add a new section → name it "product-slider-showcase"
+  3. Paste this whole file in, Save
+  4. Go to your theme customizer → Add section → pick "Product Slider Showcase"
+  5. Click "Add product" in the section settings and pick as many
+     products as you want in the slider
+{% endcomment %}
+
+<div class="pss"
+     id="pss-{{ section.id }}"
+     data-autoplay="{{ section.settings.autoplay }}"
+     data-autoplay-speed="{{ section.settings.autoplay_speed | times: 1000 }}"
+     data-pause-on-hover="{{ section.settings.pause_on_hover }}"
+     style="--pss-text-anim-duration: {{ section.settings.text_animation_duration }}ms; --pss-text-anim-delay: {{ section.settings.text_animation_delay }}ms; --pss-text-anim-stagger: {{ section.settings.text_animation_stagger }}ms;">
+  <div class="pss__stage">
+
+    {% comment %} LEFT: image slides {% endcomment %}
+    {% assign product_count = 0 %}
+    {% for block in section.blocks %}
+      {% if block.settings.product %}
+        {% assign product_count = product_count | plus: 1 %}
+      {% endif %}
+    {% endfor %}
+
+    <div class="pss__media">
+      <div class="pss__track" data-pss-track data-total="{{ product_count }}">
+
+        {% comment %} clone of the LAST real slide, placed at the start {% endcomment %}
+        {% for block in section.blocks %}
+          {% assign product = block.settings.product %}
+          {% if product and forloop.last %}
+            <div class="pss__slide" data-pss-clone="last">
+              {% if product.featured_image %}
+                <img src="{{ product.featured_image | image_url: width: 900 }}" alt="" loading="lazy" width="900" height="{{ 900 | divided_by: product.featured_image.aspect_ratio }}">
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
+
+        {% for block in section.blocks %}
+          {% assign product = block.settings.product %}
+          {% if product %}
+            <div class="pss__slide"
+                 data-pss-slide="{{ forloop.index0 }}"
+                 {{ block.shopify_attributes }}>
+              {% if product.featured_image %}
+                <img
+                  src="{{ product.featured_image | image_url: width: 900 }}"
+                  alt="{{ product.featured_image.alt | escape }}"
+                  loading="{% if forloop.first %}eager{% else %}lazy{% endif %}"
+                  width="900"
+                  height="{{ 900 | divided_by: product.featured_image.aspect_ratio }}"
+                >
+              {% else %}
+                {{ 'product-1' | placeholder_svg_tag: 'pss__placeholder' }}
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
+
+        {% comment %} clone of the FIRST real slide, placed at the end {% endcomment %}
+        {% for block in section.blocks %}
+          {% assign product = block.settings.product %}
+          {% if product and forloop.first %}
+            <div class="pss__slide" data-pss-clone="first">
+              {% if product.featured_image %}
+                <img src="{{ product.featured_image | image_url: width: 900 }}" alt="" loading="lazy" width="900" height="{{ 900 | divided_by: product.featured_image.aspect_ratio }}">
+              {% endif %}
+            </div>
+          {% endif %}
+        {% endfor %}
+
+      </div>
+
+      {% capture total_display %}{% if product_count < 10 %}0{{ product_count }}{% else %}{{ product_count }}{% endif %}{% endcapture %}
+      <div class="pss__counter">
+        <span data-pss-counter-current>01</span> / <span data-pss-counter-total>{{ total_display }}</span>
+      </div>
+
+      <div class="pss__dots">
+        {% for block in section.blocks %}
+          {% if block.settings.product %}
+            <button
+              type="button"
+              class="pss__dot {% if forloop.first %}is-active{% endif %}"
+              data-pss-dot="{{ forloop.index0 }}"
+              aria-label="View product {{ forloop.index }}"
+            ></button>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    {% comment %} RIGHT: detail panels {% endcomment %}
+    <div class="pss__details">
+      {% for block in section.blocks %}
+        {% assign product = block.settings.product %}
+        {% if product %}
+          <div class="pss__panel {% if forloop.first %}is-active{% endif %}"
+               data-pss-panel="{{ forloop.index0 }}">
+
+            {% if block.settings.eyebrow != blank %}
+              <p class="pss__eyebrow">{{ block.settings.eyebrow }}</p>
+            {% endif %}
+
+            <h2 class="pss__title">{{ product.title }}</h2>
+
+            <p class="pss__price">
+              From {{ product.price_min | money }}
+            </p>
+
+            {% if product.description != blank %}
+              <div class="pss__description">
+                {{ product.description | strip_html | truncatewords: 40 }}
+              </div>
+            {% endif %}
+
+            <a href="{{ product.url }}" class="pss__cta">
+              {{ block.settings.cta_text | default: 'View product' }}
+            </a>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+  </div>
+
+  {% comment %} thumbnail rail (optional next/prev via clicking product list) {% endcomment %}
+  <div class="pss__rail">
+    {% for block in section.blocks %}
+      {% assign product = block.settings.product %}
+      {% if product %}
+        <button
+          type="button"
+          class="pss__thumb {% if forloop.first %}is-active{% endif %}"
+          data-pss-thumb="{{ forloop.index0 }}"
+        >
+          {% if product.featured_image %}
+            <img
+              src="{{ product.featured_image | image_url: width: 160 }}"
+              alt="{{ product.title | escape }}"
+              loading="lazy"
+              width="80"
+              height="80"
+            >
+          {% endif %}
+        </button>
+      {% endif %}
+    {% endfor %}
+  </div>
+</div>
+
+<style>
+  #pss-{{ section.id }} {
+    --pss-border: #ececec;
+    --pss-text: #1a1a1a;
+    --pss-muted: #767676;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 48px 24px;
+    font-family: inherit;
+  }
+
+  #pss-{{ section.id }} .pss__stage {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 48px;
+    align-items: start;
+  }
+
+  #pss-{{ section.id }} .pss__media {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    background: #fafafa;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  #pss-{{ section.id }} .pss__track {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    /* GSAP-style ease: quick start, soft settle */
+    transition: transform 0.65s cubic-bezier(0.65, 0, 0.35, 1);
+    will-change: transform;
+  }
+
+  #pss-{{ section.id }} .pss__track.pss__track--no-transition {
+    transition: none;
+  }
+
+  #pss-{{ section.id }} .pss__slide {
+    flex: 0 0 100%;
+    width: 100%;
+    height: 100%;
+  }
+
+  #pss-{{ section.id }} .pss__slide img,
+  #pss-{{ section.id }} .pss__placeholder {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  #pss-{{ section.id }} .pss__counter {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    z-index: 2;
+    font-size: 12px;
+    letter-spacing: 0.05em;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.35);
+    padding: 5px 10px;
+    border-radius: 20px;
+    backdrop-filter: blur(2px);
+  }
+
+  #pss-{{ section.id }} .pss__dots {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 2;
+  }
+
+  #pss-{{ section.id }} .pss__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    padding: 0;
+    transition: background 0.2s ease, transform 0.2s ease;
+  }
+
+  #pss-{{ section.id }} .pss__dot.is-active {
+    background: #1a1a1a;
+    transform: scale(1.2);
+  }
+
+  #pss-{{ section.id }} .pss__details {
+    position: relative;
+    min-height: 260px;
+    padding-top: 8px;
+  }
+
+  #pss-{{ section.id }} .pss__panel {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 280ms ease, visibility 0s linear 280ms;
+  }
+
+  #pss-{{ section.id }} .pss__panel.is-active {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0s, visibility 0s;
+  }
+
+  /* Each line starts hidden and is nudged down slightly; when its
+     panel becomes active, every line plays the same entrance but with
+     an increasing delay, so they cascade in one after another rather
+     than appearing as a single flat block — a lightweight stand-in
+     for a GSAP staggered timeline, done in pure CSS. */
+  #pss-{{ section.id }} .pss__eyebrow,
+  #pss-{{ section.id }} .pss__title,
+  #pss-{{ section.id }} .pss__price,
+  #pss-{{ section.id }} .pss__description,
+  #pss-{{ section.id }} .pss__cta {
+    opacity: 0;
+  }
+
+  #pss-{{ section.id }} .pss__panel.is-active .pss__eyebrow {
+    animation: pss-text-in var(--pss-text-anim-duration, 450ms) cubic-bezier(0.16, 1, 0.3, 1)
+      var(--pss-text-anim-delay, 100ms) both;
+  }
+
+  #pss-{{ section.id }} .pss__panel.is-active .pss__title {
+    animation: pss-text-in var(--pss-text-anim-duration, 450ms) cubic-bezier(0.16, 1, 0.3, 1)
+      calc(var(--pss-text-anim-delay, 100ms) + var(--pss-text-anim-stagger, 80ms)) both;
+  }
+
+  #pss-{{ section.id }} .pss__panel.is-active .pss__price {
+    animation: pss-text-in var(--pss-text-anim-duration, 450ms) cubic-bezier(0.16, 1, 0.3, 1)
+      calc(var(--pss-text-anim-delay, 100ms) + (var(--pss-text-anim-stagger, 80ms) * 2)) both;
+  }
+
+  #pss-{{ section.id }} .pss__panel.is-active .pss__description {
+    animation: pss-text-in var(--pss-text-anim-duration, 450ms) cubic-bezier(0.16, 1, 0.3, 1)
+      calc(var(--pss-text-anim-delay, 100ms) + (var(--pss-text-anim-stagger, 80ms) * 3)) both;
+  }
+
+  #pss-{{ section.id }} .pss__panel.is-active .pss__cta {
+    animation: pss-text-in var(--pss-text-anim-duration, 450ms) cubic-bezier(0.16, 1, 0.3, 1)
+      calc(var(--pss-text-anim-delay, 100ms) + (var(--pss-text-anim-stagger, 80ms) * 4)) both;
+  }
+
+  @keyframes pss-text-in {
+    from {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  #pss-{{ section.id }} .pss__eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 12px;
+    color: var(--pss-muted);
+    margin: 0 0 8px;
+  }
+
+  #pss-{{ section.id }} .pss__title {
+    font-size: 28px;
+    font-weight: 500;
+    margin: 0 0 8px;
+    color: var(--pss-text);
+  }
+
+  #pss-{{ section.id }} .pss__price {
+    font-size: 16px;
+    color: var(--pss-muted);
+    margin: 0 0 20px;
+  }
+
+  #pss-{{ section.id }} .pss__description {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--pss-text);
+    margin: 0 0 28px;
+  }
+
+  #pss-{{ section.id }} .pss__cta {
+    display: inline-block;
+    padding: 12px 28px;
+    background: var(--pss-text);
+    color: #fff;
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 2px;
+    transition: opacity 0.2s ease;
+  }
+
+  #pss-{{ section.id }} .pss__cta:hover {
+    opacity: 0.85;
+  }
+
+  #pss-{{ section.id }} .pss__rail {
+    display: flex;
+    gap: 10px;
+    margin-top: 24px;
+    overflow-x: auto;
+  }
+
+  #pss-{{ section.id }} .pss__thumb {
+    flex: 0 0 auto;
+    width: 64px;
+    height: 64px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--pss-border);
+    padding: 0;
+    cursor: pointer;
+    opacity: 0.6;
+    transition: opacity 0.2s ease, border-color 0.2s ease;
+  }
+
+  #pss-{{ section.id }} .pss__thumb.is-active {
+    opacity: 1;
+    border-color: var(--pss-text);
+  }
+
+  #pss-{{ section.id }} .pss__thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  @media (max-width: 749px) {
+    #pss-{{ section.id }} .pss__stage {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    #pss-{{ section.id }} .pss__details {
+      /* No longer needs a fixed min-height: the active panel now
+         renders in normal flow (see .pss__panel rules below), so
+         this container grows to fit whatever content is inside it. */
+      min-height: 0;
+    }
+
+    /* On mobile the details column stacks under the image, and the
+       thumbnail rail sits right after it in the DOM. The panels were
+       "position: absolute; inset: 0" so they could cross-fade on
+       desktop — but absolutely positioned elements don't add height
+       to their parent. When a panel's real content (title + price +
+       description + button) was taller than pss__details' fixed
+       min-height, it silently overflowed downward and overlapped the
+       thumbnail rail below it. Fix: make only the active panel take
+       up real, normal-flow space on mobile; hide the rest instead of
+       stacking them invisibly on top of each other. */
+    #pss-{{ section.id }} .pss__panel {
+      position: static;
+      display: none;
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* The staggered per-line entrance (see .pss__panel.is-active
+       .pss__eyebrow / .pss__title / etc. above) plays automatically
+       here too — going from display:none to display:block triggers
+       each child's keyframe animation fresh, no JS retrigger needed. */
+    #pss-{{ section.id }} .pss__panel.is-active {
+      display: block;
+    }
+  }
+</style>
+
+<script>
+  (function () {
+    var root = document.getElementById('pss-{{ section.id }}');
+    if (!root) return;
+
+    var track  = root.querySelector('[data-pss-track]');
+    var panels = root.querySelectorAll('[data-pss-panel]');
+    var dots   = root.querySelectorAll('[data-pss-dot]');
+    var thumbs = root.querySelectorAll('[data-pss-thumb]');
+    var counterCurrent = root.querySelector('[data-pss-counter-current]');
+    var total  = parseInt(track.dataset.total, 10) || 0;
+
+    var autoplayEnabled = root.dataset.autoplay === 'true';
+    var autoplaySpeed   = parseInt(root.dataset.autoplaySpeed, 10) || 5000;
+    var pauseOnHover    = root.dataset.pauseOnHover === 'true';
+    var timer = null;
+
+    // Track layout: [clone-of-last, slide-0, slide-1, ..., slide-N-1, clone-of-first]
+    // "pos" is the track position (1-based, offset by the leading clone).
+    // "real" is the actual 0-based product index used by dots/panels/thumbs.
+    var pos = 1;
+    var isAnimating = false;
+
+    function realFromPos(p) {
+      return ((p - 1) + total) % total;
+    }
+
+    function render(p, animate) {
+      if (!animate) track.classList.add('pss__track--no-transition');
+      track.style.transform = 'translateX(-' + (p * 100) + '%)';
+      if (!animate) {
+        // force reflow so the "no-transition" jump applies instantly
+        void track.offsetHeight;
+        track.classList.remove('pss__track--no-transition');
+      }
+    }
+
+    function syncUI(realIndex) {
+      panels.forEach(function (el) {
+        el.classList.toggle('is-active', el.dataset.pssPanel === String(realIndex));
+      });
+      dots.forEach(function (el) {
+        el.classList.toggle('is-active', el.dataset.pssDot === String(realIndex));
+      });
+      thumbs.forEach(function (el) {
+        el.classList.toggle('is-active', el.dataset.pssThumb === String(realIndex));
+      });
+      if (counterCurrent) {
+        counterCurrent.textContent = String(realIndex + 1).padStart(2, '0');
+      }
+    }
+
+    function goToPos(p) {
+      if (isAnimating || total < 2) return;
+      isAnimating = true;
+      pos = p;
+      render(pos, true);
+      syncUI(realFromPos(pos));
+    }
+
+    // called after the CSS transition finishes: if we've slid onto a clone,
+    // snap instantly back to the matching real slide with no animation
+    track.addEventListener('transitionend', function (e) {
+      if (e.propertyName !== 'transform') return;
+      isAnimating = false;
+
+      if (pos === 0) {
+        pos = total;
+        render(pos, false);
+      } else if (pos === total + 1) {
+        pos = 1;
+        render(pos, false);
+      }
+    });
+
+    function next() { goToPos(pos + 1); }
+    function goToReal(realIndex) { goToPos(realIndex + 1); }
+
+    function startAutoplay() {
+      if (!autoplayEnabled || total < 2) return;
+      stopAutoplay();
+      timer = setInterval(next, autoplaySpeed);
+    }
+
+    function stopAutoplay() {
+      if (timer) {
+        clearInterval(timer);
+        timer = null;
+      }
+    }
+
+    // manual interaction restarts the autoplay clock so it doesn't
+    // jump right after the person picks something
+    function manualGoToReal(realIndex) {
+      goToReal(realIndex);
+      if (autoplayEnabled) startAutoplay();
+    }
+
+    dots.forEach(function (dot) {
+      dot.addEventListener('click', function () {
+        manualGoToReal(parseInt(dot.dataset.pssDot, 10));
+      });
+    });
+
+    thumbs.forEach(function (thumb) {
+      thumb.addEventListener('click', function () {
+        manualGoToReal(parseInt(thumb.dataset.pssThumb, 10));
+      });
+    });
+
+    if (pauseOnHover) {
+      root.addEventListener('mouseenter', stopAutoplay);
+      root.addEventListener('mouseleave', startAutoplay);
+    }
+
+    // initial paint
+    render(pos, false);
+    syncUI(realFromPos(pos));
+    startAutoplay();
+
+    // swipe support on the image area
+    var media = root.querySelector('.pss__media');
+    var startX = null;
+
+    media.addEventListener('touchstart', function (e) {
+      startX = e.touches[0].clientX;
+    }, { passive: true });
+
+    media.addEventListener('touchend', function (e) {
+      if (startX === null) return;
+      var diff = e.changedTouches[0].clientX - startX;
+
+      if (diff < -40) { manualStep(1); }
+      else if (diff > 40) { manualStep(-1); }
+
+      startX = null;
+    }, { passive: true });
+
+    function manualStep(direction) {
+      goToPos(pos + direction);
+      if (autoplayEnabled) startAutoplay();
+    }
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Product Slider Showcase",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Auto-slide",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Auto-slide time (seconds)",
+      "min": 2,
+      "max": 15,
+      "step": 1,
+      "default": 5
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_on_hover",
+      "label": "Pause auto-slide on hover",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Text animation"
+    },
+    {
+      "type": "range",
+      "id": "text_animation_duration",
+      "label": "Text animation speed",
+      "info": "How long the title/price/description take to fade in on each slide change",
+      "min": 200,
+      "max": 2000,
+      "step": 50,
+      "unit": "ms",
+      "default": 450
+    },
+    {
+      "type": "range",
+      "id": "text_animation_delay",
+      "label": "Text animation delay",
+      "info": "Pause before the text starts animating in, useful for letting the image lead",
+      "min": 0,
+      "max": 600,
+      "step": 50,
+      "unit": "ms",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "text_animation_stagger",
+      "label": "Text stagger",
+      "info": "Gap between each line appearing (eyebrow, title, price, description, button) for a cascading reveal",
+      "min": 0,
+      "max": 300,
+      "step": 10,
+      "unit": "ms",
+      "default": 80
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "text",
+          "id": "eyebrow",
+          "label": "Eyebrow text (optional)",
+          "info": "Small label above the title, e.g. category name"
+        },
+        {
+          "type": "text",
+          "id": "cta_text",
+          "label": "Button text",
+          "default": "View product"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product Slider Showcase",
+      "blocks": [
+        { "type": "product" },
+        { "type": "product" },
+        { "type": "product" }
+      ]
+    }
+  ]
+}
+{% endschema %}

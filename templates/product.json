@@ -1,0 +1,180 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "vendor": {
+          "type": "text",
+          "settings": {
+            "text": "{{ product.vendor }}",
+            "text_style": "uppercase"
+          }
+        },
+        "title": {
+          "type": "title",
+          "settings": {}
+        },
+        "price": {
+          "type": "price",
+          "settings": {}
+        },
+        "variant_picker": {
+          "type": "variant_picker",
+          "settings": {
+            "picker_type": "button",
+            "swatch_shape": "circle"
+          }
+        },
+        "quantity_selector": {
+          "type": "quantity_selector",
+          "settings": {}
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_dynamic_checkout": true,
+            "show_gift_card_recipient": true
+          }
+        },
+        "description": {
+          "type": "description",
+          "settings": {}
+        },
+        "share": {
+          "type": "share",
+          "settings": {
+            "share_label": "Share"
+          }
+        }
+      },
+      "block_order": [
+        "vendor",
+        "title",
+        "price",
+        "variant_picker",
+        "quantity_selector",
+        "buy_buttons",
+        "description",
+        "share"
+      ],
+      "settings": {
+        "enable_sticky_info": true,
+        "color_scheme": "scheme-1",
+        "media_size": "large",
+        "constrain_to_viewport": true,
+        "media_fit": "contain",
+        "gallery_layout": "stacked",
+        "mobile_thumbnails": "hide",
+        "media_position": "left",
+        "image_zoom": "lightbox",
+        "hide_variants": true,
+        "enable_video_looping": false,
+        "padding_top": 36,
+        "padding_bottom": 12
+      }
+    },
+    "related-products": {
+      "type": "related-products",
+      "settings": {
+        "heading": "You may also like",
+        "heading_size": "h2",
+        "products_to_show": 4,
+        "columns_desktop": 4,
+        "columns_mobile": "2",
+        "color_scheme": "scheme-1",
+        "image_ratio": "square",
+        "image_shape": "default",
+        "show_secondary_image": true,
+        "show_vendor": false,
+        "show_rating": false,
+        "padding_top": 36,
+        "padding_bottom": 28
+      }
+    },
+    "custom_columns_bcbcQr": {
+      "type": "custom-columns",
+      "blocks": {
+        "icon_text_wMnJHx": {
+          "type": "icon_text",
+          "settings": {
+            "column": "left",
+            "title": "🚚  Fast Shipping",
+            "text": "<p><strong>Receive your order within 2–5 business days with secure packaging.</strong></p>"
+          }
+        },
+        "icon_text_AhWhff": {
+          "type": "icon_text",
+          "settings": {
+            "column": "left",
+            "title": "⭐ Premium Quality",
+            "text": "<p><br/>Made from durable, high-quality materials built to last.<br/><br/></p>"
+          }
+        },
+        "icon_text_axhbFf": {
+          "type": "icon_text",
+          "settings": {
+            "column": "left",
+            "title": "🔒 Secure Checkout",
+            "text": "<p><br/>Your payments are encrypted and protected with trusted payment methods.<br/></p><p></p>"
+          }
+        },
+        "icon_text_T3MgqD": {
+          "type": "icon_text",
+          "settings": {
+            "column": "right",
+            "title": "💯 Satisfaction Guarantee",
+            "text": "<p><br/>07-day money-back guarantee if you're not completely satisfied.<br/><br/></p>"
+          }
+        },
+        "icon_text_BW9LzQ": {
+          "type": "icon_text",
+          "settings": {
+            "column": "right",
+            "title": "❤️ Loved by Customers",
+            "text": "<p><br/>Thousands of happy customers trust our products every day.<br/><br/></p>"
+          }
+        },
+        "icon_text_GN8Fri": {
+          "type": "icon_text",
+          "settings": {
+            "column": "right",
+            "title": "🌱 Eco-Friendly",
+            "text": "<p><br/>Made with sustainable materials and environmentally conscious packaging.<br/><br/></p>"
+          }
+        }
+      },
+      "block_order": [
+        "icon_text_wMnJHx",
+        "icon_text_AhWhff",
+        "icon_text_axhbFf",
+        "icon_text_T3MgqD",
+        "icon_text_BW9LzQ",
+        "icon_text_GN8Fri"
+      ],
+      "name": "Custom columns",
+      "settings": {
+        "heading": "Why Customers Love It",
+        "heading_size": "h1",
+        "subheading": "Every detail is carefully designed to deliver premium quality, comfort, and long-lasting performance.",
+        "image": "shopify://shop_images/Gemini_Generated_Image_7hj3k47hj3k47hj3.png",
+        "color_scheme": "",
+        "padding_top": 36,
+        "padding_bottom": 36
+      }
+    }
+  },
+  "order": [
+    "main",
+    "related-products",
+    "custom_columns_bcbcQr"
+  ]
+}
