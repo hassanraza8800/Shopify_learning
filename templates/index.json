@@ -15,6 +15,7 @@
         "color_slide_RACem9": {
           "type": "color_slide",
           "settings": {
+            "bg_color": "#e4c9a3",
             "label": "Headphone",
             "product_image": "shopify://shop_images/imgi_36_pro-2-in-1-gaming-headset-5662576_e0fe0917-191b-4510-b047-1f110415e054.jpg",
             "heading": "Wear Confidence Define Your Style.",
@@ -32,6 +33,7 @@
         "color_slide_r8AjWD": {
           "type": "color_slide",
           "settings": {
+            "bg_color": "#e4c9a3",
             "label": "hexagonal mirror",
             "product_image": "shopify://shop_images/imgi_29_hexagon-style-acrylic-mirror-modern-home-decoration-13-pieces-3096499.jpg",
             "heading": "Modern Geometry for Your Space",
@@ -53,12 +55,386 @@
       ],
       "name": "Color Swap Hero",
       "settings": {
+        "autoplay": true,
+        "autoplay_speed": 5,
+        "pause_on_hover": true,
+        "text_color": "#17181a",
+        "button_bg_color": "#14151a",
+        "button_text_color": "#ffffff",
         "heading_size": 28,
         "description_size": 15,
         "caption_size": 14,
         "price_size": 22,
         "compare_price_size": 15,
         "sizes_label_size": 13
+      }
+    },
+    "category_circle_marquee_39K9F8": {
+      "type": "category-circle-marquee",
+      "blocks": {
+        "category_qDwHwF": {
+          "type": "category",
+          "settings": {
+            "image": "shopify://shop_images/Gemini_Generated_Image_7hj3k47hj3k47hj3.png",
+            "title": "Meals",
+            "link": "",
+            "badge": ""
+          }
+        },
+        "category_YVHHY9": {
+          "type": "category",
+          "settings": {
+            "title": "Treats",
+            "link": "",
+            "badge": ""
+          }
+        },
+        "category_LkTgBW": {
+          "type": "category",
+          "settings": {
+            "title": "Supplements",
+            "link": "",
+            "badge": ""
+          }
+        },
+        "category_4PBefb": {
+          "type": "category",
+          "settings": {
+            "title": "Oil",
+            "link": "",
+            "badge": ""
+          }
+        }
+      },
+      "block_order": [
+        "category_qDwHwF",
+        "category_YVHHY9",
+        "category_LkTgBW",
+        "category_4PBefb"
+      ],
+      "name": "Category Circle Marquee",
+      "settings": {
+        "calc_mode": "exact_columns",
+        "items_visible_desktop": 3,
+        "items_visible_mobile": 3,
+        "bg_type": "solid",
+        "bg_color": "#ffffff",
+        "gradient_color_end": "#faf7f2",
+        "gradient_direction": "to bottom",
+        "preset_gradient": "warm_sand",
+        "bg_opacity": 100,
+        "bg_blend_mode": "normal",
+        "enable_arrows": true,
+        "show_arrows_mobile": true,
+        "enable_drag": true,
+        "enable_autoplay": true,
+        "marquee_speed": 18,
+        "marquee_direction": "left",
+        "pause_on_hover": true,
+        "enable_fade_edges": false,
+        "arrow_size": 40,
+        "arrow_bg": "#ffffff",
+        "arrow_color": "#2b1b10",
+        "arrow_border": "rgba(0, 0, 0, 0.1)",
+        "arrow_hover_bg": "#2b1b10",
+        "arrow_hover_color": "#ffffff",
+        "circle_size_desktop": 140,
+        "circle_size_mobile": 90,
+        "gap_desktop": 30,
+        "gap_mobile": 16,
+        "circle_bg": "#f4ede6",
+        "ring_width": 0,
+        "ring_padding": 0,
+        "ring_color": "transparent",
+        "ring_hover_color": "#6d4327",
+        "circle_shadow": 6,
+        "title_size": 16,
+        "title_weight": "700",
+        "title_transform": "none",
+        "title_letter_spacing": 0,
+        "title_color": "#6d4327",
+        "title_hover_color": "#2b1b10",
+        "title_spacing": 12,
+        "badge_bg": "#e11d48",
+        "badge_color": "#ffffff",
+        "heading": "",
+        "heading_size": 28,
+        "heading_align": "center",
+        "subheading": "",
+        "subheading_size": 15,
+        "heading_spacing": 30,
+        "heading_color": "#2b1b10",
+        "subheading_color": "#7a6455",
+        "container_width": 900,
+        "padding_top": 40,
+        "padding_bottom": 40
+      }
+    },
+    "deals_showcase_section": {
+      "type": "deals-showcase",
+      "settings": {
+        "bg_type": "solid",
+        "bg_color": "#ffffff",
+        "gradient_color_end": "#faf7f2",
+        "gradient_direction": "to bottom",
+        "preset_gradient": "warm_sand",
+        "bg_opacity": 100,
+        "bg_blend_mode": "normal",
+        "heading": "",
+        "subheading": "",
+        "heading_align": "left",
+        "heading_size": 28,
+        "subheading_size": 15,
+        "heading_spacing": 28,
+        "heading_color": "#111827",
+        "subheading_color": "#6b7280",
+        "deal_heading": "Biggest Deals",
+        "featured_deal_product": "",
+        "deal_card_bg": "#f4f5f7",
+        "deal_card_width": 360,
+        "deal_title_size": 20,
+        "deal_title_color": "#111827",
+        "deal_prod_title_size": 17,
+        "default_countdown_date": "",
+        "default_countdown_hours": 48,
+        "deal_btn_action": "ajax_cart",
+        "deal_btn_url": "",
+        "deal_btn_label": "Add to cart",
+        "collection": "",
+        "products_to_show": 6,
+        "columns_desktop": 3,
+        "columns_mobile": "2",
+        "show_sale_badge": true,
+        "badge_bg_color": "#ff4d4f",
+        "grid_btn_action": "ajax_cart",
+        "grid_btn_custom_url": "",
+        "grid_btn_label": "Add To Cart",
+        "title_size": 14,
+        "title_weight": "700",
+        "title_transform": "none",
+        "title_letter_spacing": 0,
+        "title_color": "#111827",
+        "title_hover_color": "#ff6600",
+        "price_color": "#111827",
+        "price_highlight_color": "#ff6600",
+        "btn_bg_color": "#ff6600",
+        "btn_hover_bg_color": "#e65c00",
+        "btn_text_color": "#ffffff",
+        "btn_border_radius": 24,
+        "card_border_radius": 16,
+        "container_width": 1320,
+        "grid_gap": 24,
+        "padding_top": 40,
+        "padding_bottom": 50
+      }
+    },
+    "deals_featured_collection_section": {
+      "type": "deals-featured-collection",
+      "settings": {
+        "bg_type": "solid",
+        "bg_color": "#ffffff",
+        "gradient_color_end": "#faf7f2",
+        "gradient_direction": "to bottom",
+        "preset_gradient": "warm_sand",
+        "bg_opacity": 100,
+        "bg_blend_mode": "normal",
+        "heading": "Featured Collection",
+        "subheading": "Discover our top trending products at unbeatable prices",
+        "heading_align": "center",
+        "heading_size": 32,
+        "subheading_size": 15,
+        "heading_spacing": 32,
+        "heading_color": "#111827",
+        "subheading_color": "#6b7280",
+        "collection": "",
+        "products_to_show": 8,
+        "columns_desktop": 4,
+        "columns_mobile": "2",
+        "show_sale_badge": true,
+        "badge_bg_color": "#ff4d4f",
+        "enable_card_shadow": true,
+        "card_bg": "#ffffff",
+        "button_action": "ajax_cart",
+        "button_custom_url": "",
+        "grid_btn_label": "Add To Cart",
+        "show_view_all": false,
+        "view_all_label": "View All Products",
+        "title_size": 15,
+        "title_weight": "700",
+        "title_transform": "none",
+        "title_letter_spacing": 0,
+        "title_color": "#111827",
+        "title_hover_color": "#ff6600",
+        "price_color": "#111827",
+        "price_highlight_color": "#ff6600",
+        "btn_bg_color": "#ff6600",
+        "btn_hover_bg_color": "#e65c00",
+        "btn_text_color": "#ffffff",
+        "btn_border_radius": 22,
+        "card_border_radius": 14,
+        "container_width": 1320,
+        "grid_gap": 24,
+        "padding_top": 40,
+        "padding_bottom": 50
+      }
+    },
+    "whole_nutrition_showcase_section": {
+      "type": "whole-nutrition-showcase",
+      "settings": {
+        "heading": "WHOLE NUTRITION IN EVERY BITE",
+        "heading_size": 32,
+        "heading_weight": "800",
+        "heading_transform": "uppercase",
+        "heading_letter_spacing": 1,
+        "heading_color": "#6d4327",
+        "heading_align": "center",
+        "subheading": "",
+        "subheading_size": 15,
+        "subheading_color": "#7a6455",
+        "heading_spacing": 48,
+        "enable_animation": true,
+        "anim_type": "radial_orbit",
+        "anim_duration": 0.8,
+        "anim_curve": "smooth",
+        "enable_float": true,
+        "float_speed": "normal",
+        "bowl_size_desktop": 380,
+        "bowl_size_mobile": 260,
+        "feat_1_title": "Omega-3s",
+        "feat_1_text": "Essential fatty acids from salmon and flaxseed help maintain healthy skin and a shiny coat.",
+        "feat_2_title": "Powerful Superfoods",
+        "feat_2_text": "Nutrient-rich ingredients like blueberries and spinach deliver natural antioxidants for overall health.",
+        "feat_3_title": "High Quality Proteins",
+        "feat_3_text": "Grass-fed beef and Atlantic salmon provide lean protein to support strong muscles.",
+        "feat_4_title": "Probiotics for Digestion",
+        "feat_4_text": "Quality proteins like Grass-Fed Beef and Atlantic Salmon support lean muscle growth.",
+        "badge_size": 80,
+        "badge_spacing": 16,
+        "stage_gap": 40,
+        "feature_vertical_gap": 56,
+        "text_align_left": "center",
+        "text_align_right": "center",
+        "feature_title_size": 18,
+        "feature_title_weight": "700",
+        "feature_title_transform": "capitalize",
+        "feature_title_spacing": 0,
+        "feature_title_color": "#5c3a21",
+        "feature_title_hover_color": "#2b1b10",
+        "feature_text_size": 13,
+        "feature_text_color": "#7a6455",
+        "bg_type": "solid",
+        "bg_color": "#faf7f2",
+        "gradient_color_end": "#ffffff",
+        "gradient_direction": "to bottom",
+        "preset_gradient": "warm_sand",
+        "bg_opacity": 100,
+        "bg_blend_mode": "normal",
+        "container_width": 1200,
+        "padding_top": 60,
+        "padding_bottom": 60
+      }
+    },
+    "product_slider_showcase_pJYem6": {
+      "type": "product-slider-showcase",
+      "blocks": {
+        "product_YfHAH9": {
+          "type": "product",
+          "settings": {
+            "product": "pro-2-in-1-gaming-headset",
+            "eyebrow": "",
+            "cta_text": "View product"
+          }
+        },
+        "product_jbEyAz": {
+          "type": "product",
+          "settings": {
+            "product": "hexagon-style-acrylic-mirror-modern-home-decoration-13-pieces",
+            "eyebrow": "",
+            "cta_text": "View product"
+          }
+        }
+      },
+      "block_order": [
+        "product_YfHAH9",
+        "product_jbEyAz"
+      ],
+      "name": "Product Slider Showcase",
+      "settings": {
+        "autoplay": true,
+        "autoplay_speed": 5,
+        "pause_on_hover": true,
+        "text_animation_duration": 450,
+        "text_animation_delay": 100,
+        "text_animation_stagger": 80
+      }
+    },
+    "scent_family_grid_section": {
+      "type": "scent-family-grid",
+      "blocks": {
+        "family_1": {
+          "type": "scent_family",
+          "settings": {
+            "collection": "",
+            "badge": "",
+            "title": "",
+            "notes": "",
+            "link": ""
+          }
+        },
+        "family_2": {
+          "type": "scent_family",
+          "settings": {
+            "collection": "",
+            "badge": "",
+            "title": "",
+            "notes": "",
+            "link": ""
+          }
+        },
+        "family_3": {
+          "type": "scent_family",
+          "settings": {
+            "collection": "",
+            "badge": "",
+            "title": "",
+            "notes": "",
+            "link": ""
+          }
+        },
+        "family_4": {
+          "type": "scent_family",
+          "settings": {
+            "collection": "",
+            "badge": "",
+            "title": "",
+            "notes": "",
+            "link": ""
+          }
+        }
+      },
+      "block_order": [
+        "family_1",
+        "family_2",
+        "family_3",
+        "family_4"
+      ],
+      "settings": {
+        "color_scheme": "",
+        "collection_list": [],
+        "eyebrow": "THE TAXONOMY",
+        "heading": "Shop by Scent Family",
+        "description": "A pure olfactive catalog arranged by raw botanicals, volatile leaf oils, and aged balsamic resins.",
+        "columns_desktop": "4",
+        "columns_mobile": "1",
+        "image_ratio": "portrait",
+        "eyebrow_size": 11,
+        "heading_size": 42,
+        "description_size": 14,
+        "card_badge_size": 11,
+        "card_title_size": 22,
+        "card_notes_size": 13,
+        "padding_top": 64,
+        "padding_bottom": 64
       }
     },
     "apothecary_provenance_8Ptcbx": {
@@ -105,38 +481,111 @@
         "padding_bottom": 48
       }
     },
-    "product_slider_showcase_pJYem6": {
-      "type": "product-slider-showcase",
+    "patron_ledger_section": {
+      "type": "patron-ledger",
       "blocks": {
-        "product_YfHAH9": {
-          "type": "product",
+        "press_1": {
+          "type": "press_item",
           "settings": {
-            "product": "pro-2-in-1-gaming-headset",
-            "eyebrow": "",
-            "cta_text": "View product"
+            "title": "VOGUE LIVING",
+            "link": ""
           }
         },
-        "product_jbEyAz": {
-          "type": "product",
+        "press_2": {
+          "type": "press_item",
           "settings": {
-            "product": "hexagon-style-acrylic-mirror-modern-home-decoration-13-pieces",
-            "eyebrow": "",
-            "cta_text": "View product"
+            "title": "THE WORLD OF INTERIORS",
+            "link": ""
+          }
+        },
+        "press_3": {
+          "type": "press_item",
+          "settings": {
+            "title": "KINFOLK FORMULARY",
+            "link": ""
           }
         }
       },
       "block_order": [
-        "product_YfHAH9",
-        "product_jbEyAz"
+        "press_1",
+        "press_2",
+        "press_3"
       ],
-      "name": "Product Slider Showcase",
       "settings": {
-        "autoplay": true,
-        "autoplay_speed": 5,
-        "pause_on_hover": true,
-        "text_animation_duration": 450,
-        "text_animation_delay": 100,
-        "text_animation_stagger": 80
+        "color_scheme": "",
+        "eyebrow": "PATRON LEDGER • FOLIO NO. 819",
+        "quote": "The one candle I've never let myself run out of. It fills the room with the quiet chill of autumn pine needles before rain.",
+        "author": "— ELEANOR V., BURLINGTON VT",
+        "author_subtext": "VERIFIED ARCHIVE PATRON",
+        "press_static_list": "VOGUE LIVING, THE WORLD OF INTERIORS, KINFOLK FORMULARY",
+        "quote_size": 32,
+        "author_size": 13,
+        "eyebrow_size": 11,
+        "press_size": 11,
+        "custom_bg": "",
+        "custom_text": "",
+        "custom_accent": "",
+        "custom_muted": "",
+        "padding_top": 64,
+        "padding_bottom": 64
+      }
+    },
+    "diagnostic_quiz_section": {
+      "type": "diagnostic-quiz",
+      "blocks": {
+        "chip_1": {
+          "type": "atmosphere_option",
+          "settings": {
+            "title": "Mossy Woodland"
+          }
+        },
+        "chip_2": {
+          "type": "atmosphere_option",
+          "settings": {
+            "title": "Sunlit Orchard"
+          }
+        },
+        "chip_3": {
+          "type": "atmosphere_option",
+          "settings": {
+            "title": "Ancient Hearth"
+          }
+        },
+        "chip_4": {
+          "type": "atmosphere_option",
+          "settings": {
+            "title": "Coastal Fog"
+          }
+        }
+      },
+      "block_order": [
+        "chip_1",
+        "chip_2",
+        "chip_3",
+        "chip_4"
+      ],
+      "settings": {
+        "color_scheme": "",
+        "eyebrow": "DIAGNOSTIC INSCRIPTION",
+        "heading": "Not sure where to start?",
+        "description": "Answer three questions to be matched with your botanical archetype and seasonal balance formulation.",
+        "step_label": "STEP 01 — WHICH ATMOSPHERE CALLS TO YOU?",
+        "button_label": "TAKE THE SCENT QUIZ →",
+        "button_link": "",
+        "time_estimate": "APPROX. 90 SECONDS",
+        "heading_size": 36,
+        "description_size": 15,
+        "eyebrow_size": 11,
+        "step_size": 11,
+        "chip_size": 13,
+        "button_size": 13,
+        "custom_bg": "",
+        "custom_card_bg": "",
+        "custom_text": "",
+        "custom_accent": "",
+        "custom_border": "",
+        "padding_top": 64,
+        "padding_bottom": 64
       }
     },
     "slideshow_g7AC9p": {
@@ -213,185 +662,11 @@
         "padding_top": 36,
         "padding_bottom": 36
       }
-    },
-    "deals_showcase_section": {
-      "type": "deals-showcase",
-      "settings": {
-        "deal_heading": "Biggest Deals",
-        "default_countdown_hours": 48,
-        "products_to_show": 6,
-        "columns_desktop": 3,
-        "show_sale_badge": true
-      }
-    },
-    "deals_featured_collection_section": {
-      "type": "deals-featured-collection",
-      "settings": {
-        "heading": "Featured Collection",
-        "subheading": "Discover our top trending products at unbeatable prices",
-        "products_to_show": 8,
-        "columns_desktop": 4,
-        "show_sale_badge": true
-      }
-    },
-    "whole_nutrition_showcase_section": {
-      "type": "whole-nutrition-showcase",
-      "settings": {
-        "heading": "WHOLE NUTRITION IN EVERY BITE",
-        "heading_color": "#6d4327",
-        "bg_type": "solid",
-        "bg_color": "#faf7f2",
-        "feat_1_title": "Omega-3s",
-        "feat_1_text": "Essential fatty acids from salmon and flaxseed help maintain healthy skin and a shiny coat.",
-        "feat_2_title": "Powerful Superfoods",
-        "feat_2_text": "Nutrient-rich ingredients like blueberries and spinach deliver natural antioxidants for overall health.",
-        "feat_3_title": "High Quality Proteins",
-        "feat_3_text": "Grass-fed beef and Atlantic salmon provide lean protein to support strong muscles.",
-        "feat_4_title": "Probiotics for Digestion",
-        "feat_4_text": "Quality proteins like Grass-Fed Beef and Atlantic Salmon support lean muscle growth.",
-        "enable_animation": true,
-        "anim_type": "radial_orbit",
-        "anim_duration": 0.8,
-        "enable_float": true
-      }
-    },
-    "scent_family_grid_section": {
-      "type": "scent-family-grid",
-      "blocks": {
-        "family_1": {
-          "type": "scent_family",
-          "settings": {}
-        },
-        "family_2": {
-          "type": "scent_family",
-          "settings": {}
-        },
-        "family_3": {
-          "type": "scent_family",
-          "settings": {}
-        },
-        "family_4": {
-          "type": "scent_family",
-          "settings": {}
-        }
-      },
-      "block_order": [
-        "family_1",
-        "family_2",
-        "family_3",
-        "family_4"
-      ],
-      "settings": {
-        "eyebrow": "THE TAXONOMY",
-        "heading": "Shop by Scent Family",
-        "description": "A pure olfactive catalog arranged by raw botanicals, volatile leaf oils, and aged balsamic resins.",
-        "columns_desktop": "4",
-        "columns_mobile": "1",
-        "image_ratio": "portrait",
-        "eyebrow_size": 11,
-        "heading_size": 42,
-        "description_size": 14,
-        "card_badge_size": 11,
-        "card_title_size": 22,
-        "card_notes_size": 13,
-        "padding_top": 64,
-        "padding_bottom": 64
-      }
-    },
-    "patron_ledger_section": {
-      "type": "patron-ledger",
-      "blocks": {
-        "press_1": {
-          "type": "press_item",
-          "settings": {
-            "title": "VOGUE LIVING"
-          }
-        },
-        "press_2": {
-          "type": "press_item",
-          "settings": {
-            "title": "THE WORLD OF INTERIORS"
-          }
-        },
-        "press_3": {
-          "type": "press_item",
-          "settings": {
-            "title": "KINFOLK FORMULARY"
-          }
-        }
-      },
-      "block_order": [
-        "press_1",
-        "press_2",
-        "press_3"
-      ],
-      "settings": {
-        "eyebrow": "PATRON LEDGER • FOLIO NO. 819",
-        "quote": "The one candle I've never let myself run out of. It fills the room with the quiet chill of autumn pine needles before rain.",
-        "author": "— ELEANOR V., BURLINGTON VT",
-        "author_subtext": "VERIFIED ARCHIVE PATRON",
-        "quote_size": 32,
-        "author_size": 13,
-        "eyebrow_size": 11,
-        "press_size": 11,
-        "padding_top": 64,
-        "padding_bottom": 64
-      }
-    },
-    "diagnostic_quiz_section": {
-      "type": "diagnostic-quiz",
-      "blocks": {
-        "chip_1": {
-          "type": "atmosphere_option",
-          "settings": {
-            "title": "Mossy Woodland"
-          }
-        },
-        "chip_2": {
-          "type": "atmosphere_option",
-          "settings": {
-            "title": "Sunlit Orchard"
-          }
-        },
-        "chip_3": {
-          "type": "atmosphere_option",
-          "settings": {
-            "title": "Ancient Hearth"
-          }
-        },
-        "chip_4": {
-          "type": "atmosphere_option",
-          "settings": {
-            "title": "Coastal Fog"
-          }
-        }
-      },
-      "block_order": [
-        "chip_1",
-        "chip_2",
-        "chip_3",
-        "chip_4"
-      ],
-      "settings": {
-        "eyebrow": "DIAGNOSTIC INSCRIPTION",
-        "heading": "Not sure where to start?",
-        "description": "Answer three questions to be matched with your botanical archetype and seasonal balance formulation.",
-        "step_label": "STEP 01 — WHICH ATMOSPHERE CALLS TO YOU?",
-        "button_label": "TAKE THE SCENT QUIZ →",
-        "time_estimate": "APPROX. 90 SECONDS",
-        "heading_size": 36,
-        "description_size": 15,
-        "eyebrow_size": 11,
-        "step_size": 11,
-        "chip_size": 13,
-        "button_size": 13,
-        "padding_top": 64,
-        "padding_bottom": 64
-      }
     }
   },
   "order": [
     "color_swap_hero_Ym4z7w",
+    "category_circle_marquee_39K9F8",
     "deals_showcase_section",
     "deals_featured_collection_section",
     "whole_nutrition_showcase_section",
