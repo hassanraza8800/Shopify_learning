@@ -80,6 +80,11 @@
     {{ section_bg_css | strip }}
   }
 
+  {%- assign is_full_width = true -%}
+  {%- if section.settings.full_width == false -%}
+    {%- assign is_full_width = false -%}
+  {%- endif -%}
+
   /* Independent Background Layer for Clean Opacity & Gradients */
   .cat-marquee-{{ section.id }} .cat-marquee__bg-layer {
     position: absolute;
@@ -98,9 +103,15 @@
   }
 
   .cat-marquee-{{ section.id }} .cat-marquee__container {
-    max-width: {{ section.settings.container_width }}px;
-    margin: 0 auto;
-    padding: 0 20px;
+    {% if is_full_width %}
+      max-width: 100%;
+      padding: 0;
+      margin: 0 auto;
+    {% else %}
+      max-width: {{ section.settings.container_width | default: 1200 }}px;
+      margin: 0 auto;
+      padding: 0 20px;
+    {% endif %}
     position: relative;
     z-index: 1;
     box-sizing: border-box;
@@ -114,6 +125,12 @@
     justify-content: {% if section.settings.heading_align == 'center' %}center{% elsif section.settings.heading_align == 'right' %}flex-end{% else %}space-between{% endif %};
     margin-bottom: {{ section.settings.heading_spacing }}px;
     position: relative;
+    {% if is_full_width %}
+      max-width: {{ section.settings.container_width | default: 1200 }}px;
+      margin-left: auto;
+      margin-right: auto;
+      padding: 0 20px;
+    {% endif %}
   }
 
   .cat-marquee-{{ section.id }} .cat-marquee__header {
@@ -240,8 +257,13 @@
   @supports not (width: 1cqw) {
     .cat-marquee-{{ section.id }} .cat-item {
       {% if section.settings.calc_mode == 'exact_columns' %}
-        width: calc(({{ section.settings.container_width }}px - 40px - (var(--cat-gap) * (var(--cat-items-desktop) - 1))) / var(--cat-items-desktop));
-        flex: 0 0 calc(({{ section.settings.container_width }}px - 40px - (var(--cat-gap) * (var(--cat-items-desktop) - 1))) / var(--cat-items-desktop));
+        {% if is_full_width %}
+          width: calc((100vw - (var(--cat-gap) * (var(--cat-items-desktop) - 1))) / var(--cat-items-desktop));
+          flex: 0 0 calc((100vw - (var(--cat-gap) * (var(--cat-items-desktop) - 1))) / var(--cat-items-desktop));
+        {% else %}
+          width: calc(({{ section.settings.container_width | default: 1200 }}px - 40px - (var(--cat-gap) * (var(--cat-items-desktop) - 1))) / var(--cat-items-desktop));
+          flex: 0 0 calc(({{ section.settings.container_width | default: 1200 }}px - 40px - (var(--cat-gap) * (var(--cat-items-desktop) - 1))) / var(--cat-items-desktop));
+        {% endif %}
       {% endif %}
     }
   }
@@ -394,11 +416,11 @@
   }
 
   .cat-marquee-{{ section.id }} .cat-nav-btn--prev {
-    left: -{{ section.settings.arrow_size | divided_by: 2 }}px;
+    left: {% if is_full_width %}16px{% else %}-{{ section.settings.arrow_size | divided_by: 2 }}px{% endif %};
   }
 
   .cat-marquee-{{ section.id }} .cat-nav-btn--next {
-    right: -{{ section.settings.arrow_size | divided_by: 2 }}px;
+    right: {% if is_full_width %}16px{% else %}-{{ section.settings.arrow_size | divided_by: 2 }}px{% endif %};
   }
 
   /* Mobile Responsive */
@@ -434,10 +456,10 @@
       display: {% if section.settings.show_arrows_mobile %}flex{% else %}none{% endif %};
     }
     .cat-marquee-{{ section.id }} .cat-nav-btn--prev {
-      left: 0px;
+      left: 8px;
     }
     .cat-marquee-{{ section.id }} .cat-nav-btn--next {
-      right: 0px;
+      right: 8px;
     }
   }
 </style>
@@ -1287,14 +1309,21 @@
       "content": "Container Width & Section Spacing"
     },
     {
+      "type": "checkbox",
+      "id": "full_width",
+      "label": "Full Page Width",
+      "default": true,
+      "info": "When enabled, the circular marquee spans 100% across the complete page width edge-to-edge."
+    },
+    {
       "type": "range",
       "id": "container_width",
       "min": 600,
-      "max": 1400,
+      "max": 1800,
       "step": 50,
       "unit": "px",
-      "label": "Container Width",
-      "default": 900
+      "label": "Container Max Width (Heading / Boxed Mode)",
+      "default": 1200
     },
     {
       "type": "range",
