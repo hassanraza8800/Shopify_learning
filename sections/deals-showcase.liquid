@@ -1,0 +1,1647 @@
+{%- comment -%}
+  Deals Showcase Section (Split Deal Hero + Category Product Grid)
+  - Left Column: "Biggest Deals" Hero Card with Live Countdown Timer, Deal Slider, Price, and Add to Cart
+  - Right Column: Category/Collection Product Grid with configurable limit, columns, sale badges, and Quick AJAX Add to Cart
+  - Background & Typography Engine adhering to theme standard specifications
+{%- endcomment -%}
+
+{%- assign bg_type = section.settings.bg_type | default: 'solid' -%}
+{%- assign bg_color = section.settings.bg_color | default: '#ffffff' -%}
+{%- assign bg_color_end = section.settings.gradient_color_end | default: '#faf7f2' -%}
+
+{%- assign raw_dir = section.settings.gradient_direction | default: 'to bottom' -%}
+{%- case raw_dir -%}
+  {%- when 'to_right', 'to right' -%}
+    {%- assign bg_dir = 'to right' -%}
+  {%- when 'to_top', 'to top' -%}
+    {%- assign bg_dir = 'to top' -%}
+  {%- when 'to_left', 'to left' -%}
+    {%- assign bg_dir = 'to left' -%}
+  {%- when 'diagonal_down', '135deg' -%}
+    {%- assign bg_dir = '135deg' -%}
+  {%- when 'diagonal_up', '45deg' -%}
+    {%- assign bg_dir = '45deg' -%}
+  {%- else -%}
+    {%- assign bg_dir = 'to bottom' -%}
+  {%- endcase -%}
+
+{%- capture section_bg_css -%}
+  {%- if bg_type == 'solid' -%}
+    background-color: {{ bg_color }} !important;
+  {%- elsif bg_type == 'gradient' or bg_type == 'linear' -%}
+    background: linear-gradient({{ bg_dir }}, {{ bg_color }}, {{ bg_color_end }}) !important;
+  {%- elsif bg_type == 'preset' -%}
+    {%- case section.settings.preset_gradient -%}
+      {%- when 'warm_sand' -%}
+        background: linear-gradient(180deg, #faf7f2 0%, #ffffff 100%) !important;
+      {%- when 'apothecary_cream' -%}
+        background: linear-gradient(135deg, #f5f0eb 0%, #e8ded4 100%) !important;
+      {%- when 'sunset_glow' -%}
+        background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%) !important;
+      {%- when 'pearl_white' -%}
+        background: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%) !important;
+      {%- when 'espresso_dark' -%}
+        background: linear-gradient(135deg, #2b1b10 0%, #170e08 100%) !important;
+      {%- else -%}
+        background: linear-gradient(180deg, #faf7f2 0%, #ffffff 100%) !important;
+    {%- endcase -%}
+  {%- elsif bg_type == 'transparent' -%}
+    background: transparent !important;
+  {%- else -%}
+    background-color: {{ bg_color }} !important;
+  {%- endif -%}
+{%- endcapture -%}
+
+<style>
+  .deals-sec-{{ section.id }} {
+    position: relative;
+    width: 100%;
+    padding-top: {{ section.settings.padding_top | default: 40 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | default: 50 }}px;
+    box-sizing: border-box;
+    overflow: hidden;
+    {{ section_bg_css | strip }}
+  }
+
+  .deals-sec-{{ section.id }} .deals-bg-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    {{ section_bg_css | strip }}
+    {% if section.settings.bg_opacity < 100 and section.settings.bg_opacity != blank %}
+      opacity: {{ section.settings.bg_opacity | divided_by: 100.0 }};
+    {% endif %}
+    {% if section.settings.bg_blend_mode != blank and section.settings.bg_blend_mode != 'normal' %}
+      mix-blend-mode: {{ section.settings.bg_blend_mode }};
+    {% endif %}
+  }
+
+  .deals-sec-{{ section.id }} .deals-container {
+    max-width: {{ section.settings.container_width | default: 1320 }}px;
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+    box-sizing: border-box;
+  }
+
+  /* Optional Section Header */
+  .deals-sec-{{ section.id }} .deals-header-wrapper {
+    text-align: {{ section.settings.heading_align | default: 'left' }};
+    margin-bottom: {{ section.settings.heading_spacing | default: 28 }}px;
+  }
+
+  .deals-sec-{{ section.id }} .deals-section-heading {
+    font-size: {{ section.settings.heading_size | default: 28 }}px;
+    font-weight: 700;
+    color: {{ section.settings.heading_color | default: '#111827' }};
+    margin: 0 0 8px 0;
+    line-height: 1.25;
+  }
+
+  .deals-sec-{{ section.id }} .deals-section-subheading {
+    font-size: {{ section.settings.subheading_size | default: 15 }}px;
+    color: {{ section.settings.subheading_color | default: '#6b7280' }};
+    margin: 0;
+  }
+
+  /* Main Split Layout Grid */
+  .deals-sec-{{ section.id }} .deals-layout-grid {
+    display: grid;
+    grid-template-columns: minmax(300px, {{ section.settings.deal_card_width | default: 360 }}px) 1fr;
+    gap: {{ section.settings.grid_gap | default: 24 }}px;
+    align-items: stretch;
+  }
+
+  @media (max-width: 991px) {
+    .deals-sec-{{ section.id }} .deals-layout-grid {
+      grid-template-columns: 1fr;
+      gap: 32px;
+    }
+  }
+
+  /* ================= LEFT COLUMN: BIGGEST DEALS HERO CARD ================= */
+  .deals-sec-{{ section.id }} .deal-hero-card {
+    background: {{ section.settings.deal_card_bg | default: '#f4f5f7' }};
+    border-radius: {{ section.settings.card_border_radius | default: 16 }}px;
+    padding: 24px 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    box-sizing: border-box;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.04);
+    overflow: hidden;
+  }
+
+  .deals-sec-{{ section.id }} .deal-hero-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .deals-sec-{{ section.id }} .deal-hero-title {
+    font-size: {{ section.settings.deal_title_size | default: 20 }}px;
+    font-weight: 800;
+    color: {{ section.settings.deal_title_color | default: '#111827' }};
+    margin: 0;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .deals-sec-{{ section.id }} .deal-nav-arrows {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .deals-sec-{{ section.id }} .deal-nav-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    color: #4b5563;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 0;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  }
+
+  .deals-sec-{{ section.id }} .deal-nav-btn:hover {
+    background: {{ section.settings.btn_bg_color | default: '#ff6600' }};
+    border-color: {{ section.settings.btn_bg_color | default: '#ff6600' }};
+    color: #ffffff;
+  }
+
+  .deals-sec-{{ section.id }} .deal-nav-btn svg {
+    width: 12px;
+    height: 12px;
+    fill: currentColor;
+  }
+
+  /* Deal Slide Wrapper */
+  .deals-sec-{{ section.id }} .deal-slides-container {
+    position: relative;
+    overflow: hidden;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .deals-sec-{{ section.id }} .deal-slide {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    animation: dealFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .deals-sec-{{ section.id }} .deal-slide.active {
+    display: flex;
+  }
+
+  @keyframes dealFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .deals-sec-{{ section.id }} .deal-img-wrap {
+    width: 100%;
+    max-height: 250px;
+    min-height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 8px 0 16px 0;
+    position: relative;
+  }
+
+  .deals-sec-{{ section.id }} .deal-img-wrap img,
+  .deals-sec-{{ section.id }} .deal-img-wrap svg {
+    max-width: 100%;
+    max-height: 240px;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.4s ease;
+  }
+
+  .deals-sec-{{ section.id }} .deal-img-wrap svg {
+    background-color: #f4f4f4;
+    border-radius: 8px;
+  }
+
+  .deals-sec-{{ section.id }} .deal-hero-card:hover .deal-img-wrap img,
+  .deals-sec-{{ section.id }} .deal-hero-card:hover .deal-img-wrap svg {
+    transform: scale(1.04);
+  }
+
+  .deals-sec-{{ section.id }} .deal-product-name {
+    font-size: {{ section.settings.deal_prod_title_size | default: 17 }}px;
+    font-weight: 700;
+    color: {{ section.settings.title_color | default: '#111827' }};
+    margin: 0 0 8px 0;
+    line-height: 1.35;
+    text-decoration: none;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    transition: color 0.2s ease;
+  }
+
+  .deals-sec-{{ section.id }} .deal-product-name:hover {
+    color: {{ section.settings.btn_bg_color | default: '#ff6600' }};
+  }
+
+  .deals-sec-{{ section.id }} .deal-price-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-family: inherit;
+  }
+
+  .deals-sec-{{ section.id }} .deal-compare-price {
+    font-size: 14px;
+    color: #9ca3af;
+    text-decoration: line-through;
+    font-weight: 500;
+  }
+
+  .deals-sec-{{ section.id }} .deal-sale-price {
+    font-size: 18px;
+    font-weight: 800;
+    color: {{ section.settings.price_highlight_color | default: '#ff6600' }};
+  }
+
+  /* Countdown Timer Box */
+  .deals-sec-{{ section.id }} .deal-countdown-box {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+    box-sizing: border-box;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    margin-bottom: 18px;
+  }
+
+  .deals-sec-{{ section.id }} .timer-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 42px;
+  }
+
+  .deals-sec-{{ section.id }} .timer-num {
+    font-size: 17px;
+    font-weight: 800;
+    color: {{ section.settings.price_highlight_color | default: '#ff6600' }};
+    line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .deals-sec-{{ section.id }} .timer-label {
+    font-size: 10px;
+    font-weight: 600;
+    color: #9ca3af;
+    text-transform: capitalize;
+    margin-top: 3px;
+  }
+
+  .deals-sec-{{ section.id }} .timer-sep {
+    font-size: 16px;
+    font-weight: 700;
+    color: #374151;
+    margin-top: -8px;
+  }
+
+  /* CTA Button */
+  .deals-sec-{{ section.id }} .deal-cta-btn {
+    width: 100%;
+    background: {{ section.settings.btn_bg_color | default: '#ff6600' }};
+    color: {{ section.settings.btn_text_color | default: '#ffffff' }};
+    font-size: 14px;
+    font-weight: 700;
+    border: none;
+    border-radius: {{ section.settings.btn_border_radius | default: 24 }}px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    box-shadow: 0 4px 12px rgba(255, 102, 0, 0.25);
+    box-sizing: border-box;
+  }
+
+  .deals-sec-{{ section.id }} .deal-cta-btn:hover {
+    background: {{ section.settings.btn_hover_bg_color | default: '#e65c00' }};
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(255, 102, 0, 0.35);
+  }
+
+  /* ================= RIGHT COLUMN: PRODUCT GRID ================= */
+  .deals-sec-{{ section.id }} .deals-product-grid {
+    display: grid;
+    grid-template-columns: repeat({{ section.settings.columns_desktop | default: 3 }}, minmax(0, 1fr));
+    gap: {{ section.settings.grid_gap | default: 24 }}px;
+    align-content: start;
+  }
+
+  @media (max-width: 768px) {
+    .deals-sec-{{ section.id }} .deals-product-grid {
+      grid-template-columns: repeat({{ section.settings.columns_mobile | default: 2 }}, minmax(0, 1fr));
+      gap: 16px;
+    }
+  }
+
+  /* Individual Product Card */
+  .deals-sec-{{ section.id }} .deal-prod-card {
+    background: #ffffff;
+    border-radius: {{ section.settings.card_border_radius | default: 12 }}px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    position: relative;
+    padding: 16px 12px 14px 12px;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+  }
+
+  .deals-sec-{{ section.id }} .deal-prod-card:hover {
+    transform: translateY(-3px);
+  }
+
+  /* Sale / Discount Badge */
+  .deals-sec-{{ section.id }} .deal-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: {{ section.settings.badge_bg_color | default: '#ff4d4f' }};
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 7px;
+    border-radius: 4px;
+    z-index: 2;
+    line-height: 1.3;
+  }
+
+  .deals-sec-{{ section.id }} .prod-img-wrap {
+    width: 100%;
+    height: 150px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .deals-sec-{{ section.id }} .prod-img-wrap img,
+  .deals-sec-{{ section.id }} .prod-img-wrap svg {
+    max-width: 100%;
+    max-height: 140px;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: transform 0.35s ease;
+  }
+
+  .deals-sec-{{ section.id }} .prod-img-wrap svg {
+    background-color: #f4f4f4;
+    border-radius: 6px;
+  }
+
+  .deals-sec-{{ section.id }} .deal-prod-card:hover .prod-img-wrap img,
+  .deals-sec-{{ section.id }} .deal-prod-card:hover .prod-img-wrap svg {
+    transform: scale(1.06);
+  }
+
+  .deals-sec-{{ section.id }} .prod-card-title {
+    font-size: {{ section.settings.title_size | default: 14 }}px;
+    font-weight: {{ section.settings.title_weight | default: '700' }};
+    text-transform: {{ section.settings.title_transform | default: 'none' }};
+    letter-spacing: {{ section.settings.title_letter_spacing | default: 0 }}px;
+    color: {{ section.settings.title_color | default: '#111827' }};
+    margin: 0 0 6px 0;
+    line-height: 1.3;
+    text-decoration: none;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    min-height: 36px;
+    width: 100%;
+    transition: color 0.2s ease;
+  }
+
+  .deals-sec-{{ section.id }} .prod-card-title:hover {
+    color: {{ section.settings.title_hover_color | default: '#ff6600' }};
+  }
+
+  .deals-sec-{{ section.id }} .prod-card-prices {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .deals-sec-{{ section.id }} .prod-card-compare {
+    color: #9ca3af;
+    font-size: 12px;
+    text-decoration: line-through;
+    font-weight: 500;
+  }
+
+  .deals-sec-{{ section.id }} .prod-card-price {
+    color: {{ section.settings.price_color | default: '#111827' }};
+  }
+
+  .deals-sec-{{ section.id }} .prod-card-price.on-sale {
+    color: {{ section.settings.price_highlight_color | default: '#111827' }};
+  }
+
+  /* Add to Cart button on each grid item */
+  .deals-sec-{{ section.id }} .grid-add-btn {
+    width: 100%;
+    background: {{ section.settings.btn_bg_color | default: '#ff6600' }};
+    color: {{ section.settings.btn_text_color | default: '#ffffff' }};
+    font-size: 13px;
+    font-weight: 700;
+    border: none;
+    border-radius: {{ section.settings.btn_border_radius | default: 20 }}px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    text-decoration: none;
+    box-sizing: border-box;
+    margin-top: auto;
+  }
+
+  .deals-sec-{{ section.id }} .grid-add-btn:hover {
+    background: {{ section.settings.btn_hover_bg_color | default: '#e65c00' }};
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(255, 102, 0, 0.25);
+  }
+
+  .deals-sec-{{ section.id }} .grid-add-btn.loading {
+    opacity: 0.8;
+    pointer-events: none;
+  }
+
+  .deals-sec-{{ section.id }} .btn-spinner {
+    display: none;
+    width: 14px;
+    height: 14px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: btnSpin 0.6s linear infinite;
+  }
+
+  .deals-sec-{{ section.id }} .grid-add-btn.loading .btn-spinner,
+  .deals-sec-{{ section.id }} .deal-cta-btn.loading .btn-spinner {
+    display: inline-block;
+  }
+
+  @keyframes btnSpin {
+    to { transform: rotate(360deg); }
+  }
+</style>
+
+<div class="deals-sec-{{ section.id }}" style="{{ section_bg_css | strip }}">
+  <div class="deals-bg-layer"></div>
+
+  <div class="deals-container">
+    {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+      <div class="deals-header-wrapper">
+        {%- if section.settings.heading != blank -%}
+          <h2 class="deals-section-heading">{{ section.settings.heading }}</h2>
+        {%- endif -%}
+        {%- if section.settings.subheading != blank -%}
+          <p class="deals-section-subheading">{{ section.settings.subheading }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    <div class="deals-layout-grid">
+      <!-- ================= LEFT COLUMN: BIGGEST DEALS HERO ================= -->
+      <div class="deal-hero-card">
+        <div class="deal-hero-topbar">
+          <h3 class="deal-hero-title">
+            {{ section.settings.deal_heading | default: 'Biggest Deals' }}
+          </h3>
+          <div class="deal-nav-arrows">
+            <button type="button" class="deal-nav-btn deal-prev-btn" aria-label="Previous Deal">
+              <svg viewBox="0 0 24 24"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>
+            </button>
+            <button type="button" class="deal-nav-btn deal-next-btn" aria-label="Next Deal">
+              <svg viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="deal-slides-container" id="DealSlides-{{ section.id }}">
+          {%- assign has_deal_blocks = false -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'deal_item' -%}
+              {%- assign has_deal_blocks = true -%}
+              {%- assign deal_prod = block.settings.product -%}
+              {%- assign placeholder_index = forloop.index0 | modulo: 4 | plus: 1 -%}
+              {%- assign deal_link = block.settings.deal_url | default: deal_prod.url | default: '#' -%}
+              <div class="deal-slide {% if forloop.first %}active{% endif %}" data-index="{{ forloop.index0 }}" {{ block.shopify_attributes }}>
+                <div class="deal-img-wrap">
+                  {%- if block.settings.custom_image != blank -%}
+                    <img 
+                      src="{{ block.settings.custom_image | image_url: width: 500 }}" 
+                      alt="{{ block.settings.deal_title | default: block.settings.custom_image.alt | escape }}" 
+                      loading="lazy"
+                      width="{{ block.settings.custom_image.width }}"
+                      height="{{ block.settings.custom_image.height }}"
+                    >
+                  {%- elsif deal_prod != blank and deal_prod.featured_image != blank -%}
+                    <img 
+                      src="{{ deal_prod.featured_image | image_url: width: 500 }}" 
+                      alt="{{ deal_prod.title | escape }}" 
+                      loading="lazy"
+                      width="{{ deal_prod.featured_image.width }}"
+                      height="{{ deal_prod.featured_image.height }}"
+                    >
+                  {%- else -%}
+                    {{ 'product-apparel-' | append: placeholder_index | placeholder_svg_tag: 'placeholder-svg' }}
+                  {%- endif -%}
+                </div>
+
+                <a href="{{ deal_link }}" class="deal-product-name">
+                  {%- if block.settings.deal_title != blank -%}
+                    {{ block.settings.deal_title }}
+                  {%- elsif deal_prod != blank -%}
+                    {{ deal_prod.title }}
+                  {%- else -%}
+                    {{ 'onboarding.product_title' | t | default: 'Example product title' }}
+                  {%- endif -%}
+                </a>
+
+                <div class="deal-price-row">
+                  {%- if block.settings.custom_compare_price != blank -%}
+                    <span class="deal-compare-price">{{ block.settings.custom_compare_price }}</span>
+                  {%- elsif deal_prod != blank and deal_prod.compare_at_price > deal_prod.price -%}
+                    <span class="deal-compare-price">{{ deal_prod.compare_at_price | money }}</span>
+                  {%- else -%}
+                    <span class="deal-compare-price">{{ 3600 | money }}</span>
+                  {%- endif -%}
+
+                  <span class="deal-sale-price">
+                    {%- if block.settings.custom_price != blank -%}
+                      {{ block.settings.custom_price }}
+                    {%- elsif deal_prod != blank -%}
+                      {{ deal_prod.price | money }}
+                    {%- else -%}
+                      {{ 2400 | money }}
+                    {%- endif -%}
+                  </span>
+                </div>
+
+                <!-- Countdown Timer -->
+                <div class="deal-countdown-box" 
+                     data-end-date="{{ block.settings.countdown_date | default: section.settings.default_countdown_date }}"
+                     data-end-hours="{{ block.settings.countdown_hours | default: section.settings.default_countdown_hours }}">
+                  <div class="timer-unit">
+                    <span class="timer-num days-val">03</span>
+                    <span class="timer-label">Days</span>
+                  </div>
+                  <span class="timer-sep">:</span>
+                  <div class="timer-unit">
+                    <span class="timer-num hours-val">14</span>
+                    <span class="timer-label">Hours</span>
+                  </div>
+                  <span class="timer-sep">:</span>
+                  <div class="timer-unit">
+                    <span class="timer-num mins-val">31</span>
+                    <span class="timer-label">Minutes</span>
+                  </div>
+                  <span class="timer-sep">:</span>
+                  <div class="timer-unit">
+                    <span class="timer-num secs-val">01</span>
+                    <span class="timer-label">Second</span>
+                  </div>
+                </div>
+
+                {%- assign deal_variant_id = deal_prod.selected_or_first_available_variant.id -%}
+                {%- assign deal_action = section.settings.deal_btn_action | default: 'ajax_cart' -%}
+                {%- if deal_action == 'redirect' -%}
+                  <a href="{{ deal_link }}" class="deal-cta-btn">
+                    <span class="btn-label">{{ section.settings.deal_btn_label | default: 'View Deal' }}</span>
+                  </a>
+                {%- else -%}
+                  <button type="button" 
+                          class="deal-cta-btn ajax-add-to-cart-btn" 
+                          data-variant-id="{{ deal_variant_id | default: '' }}"
+                          data-product-url="{{ deal_link }}">
+                    <span class="btn-spinner"></span>
+                    <span class="btn-label">{{ section.settings.deal_btn_label | default: 'Add to cart' }}</span>
+                  </button>
+                {%- endif -%}
+              </div>
+            {%- endif -%}
+          {%- endfor -%}
+
+          {%- unless has_deal_blocks -%}
+            {%- comment -%} Default Slide when no block is added {%- endcomment -%}
+            {%- assign main_deal_prod = section.settings.featured_deal_product -%}
+            {%- assign default_deal_link = section.settings.deal_btn_url | default: main_deal_prod.url | default: '#' -%}
+            <div class="deal-slide active" data-index="0">
+              <div class="deal-img-wrap">
+                {%- if main_deal_prod != blank and main_deal_prod.featured_image != blank -%}
+                  <img 
+                    src="{{ main_deal_prod.featured_image | image_url: width: 500 }}" 
+                    alt="{{ main_deal_prod.title | escape }}" 
+                    loading="lazy"
+                    width="{{ main_deal_prod.featured_image.width }}"
+                    height="{{ main_deal_prod.featured_image.height }}"
+                  >
+                {%- else -%}
+                  {{ 'product-apparel-1' | placeholder_svg_tag: 'placeholder-svg' }}
+                {%- endif -%}
+              </div>
+
+              <a href="{{ default_deal_link }}" class="deal-product-name">
+                {%- if main_deal_prod != blank -%}
+                  {{ main_deal_prod.title }}
+                {%- else -%}
+                  {{ 'onboarding.product_title' | t | default: 'Example product title' }}
+                {%- endif -%}
+              </a>
+
+              <div class="deal-price-row">
+                {%- if main_deal_prod != blank and main_deal_prod.compare_at_price > main_deal_prod.price -%}
+                  <span class="deal-compare-price">{{ main_deal_prod.compare_at_price | money }}</span>
+                  <span class="deal-sale-price">{{ main_deal_prod.price | money }}</span>
+                {%- elsif main_deal_prod != blank -%}
+                  <span class="deal-sale-price">{{ main_deal_prod.price | money }}</span>
+                {%- else -%}
+                  <span class="deal-compare-price">{{ 3600 | money }}</span>
+                  <span class="deal-sale-price">{{ 2400 | money }}</span>
+                {%- endif -%}
+              </div>
+
+              <!-- Countdown Timer -->
+              <div class="deal-countdown-box" 
+                   data-end-date="{{ section.settings.default_countdown_date }}"
+                   data-end-hours="{{ section.settings.default_countdown_hours | default: 48 }}">
+                <div class="timer-unit">
+                  <span class="timer-num days-val">03</span>
+                  <span class="timer-label">Days</span>
+                </div>
+                <span class="timer-sep">:</span>
+                <div class="timer-unit">
+                  <span class="timer-num hours-val">14</span>
+                  <span class="timer-label">Hours</span>
+                </div>
+                <span class="timer-sep">:</span>
+                <div class="timer-unit">
+                  <span class="timer-num mins-val">31</span>
+                  <span class="timer-label">Minutes</span>
+                </div>
+                <span class="timer-sep">:</span>
+                <div class="timer-unit">
+                  <span class="timer-num secs-val">01</span>
+                  <span class="timer-label">Second</span>
+                </div>
+              </div>
+
+              {%- assign deal_variant_id = main_deal_prod.selected_or_first_available_variant.id -%}
+              {%- assign deal_action = section.settings.deal_btn_action | default: 'ajax_cart' -%}
+              {%- if deal_action == 'redirect' -%}
+                <a href="{{ default_deal_link }}" class="deal-cta-btn">
+                  <span class="btn-label">{{ section.settings.deal_btn_label | default: 'View Deal' }}</span>
+                </a>
+              {%- else -%}
+                <button type="button" 
+                        class="deal-cta-btn ajax-add-to-cart-btn" 
+                        data-variant-id="{{ deal_variant_id | default: '' }}"
+                        data-product-url="{{ default_deal_link }}">
+                  <span class="btn-spinner"></span>
+                  <span class="btn-label">{{ section.settings.deal_btn_label | default: 'Add to cart' }}</span>
+                </button>
+              {%- endif -%}
+            </div>
+          {%- endunless -%}
+        </div>
+      </div>
+
+      <!-- ================= RIGHT COLUMN: CATEGORY / COLLECTION GRID ================= -->
+      <div class="deals-product-grid">
+        {%- assign collection = section.settings.collection -%}
+        {%- assign limit = section.settings.products_to_show | default: 6 -%}
+
+        {%- if collection != blank and collection.products_count > 0 -%}
+          {%- for product in collection.products limit: limit -%}
+            {%- assign on_sale = false -%}
+            {%- if product.compare_at_price > product.price -%}
+              {%- assign on_sale = true -%}
+              {%- assign discount_percent = product.compare_at_price | minus: product.price | times: 100.0 | divided_by: product.compare_at_price | round -%}
+            {%- endif -%}
+
+            <div class="deal-prod-card">
+              {%- if on_sale and section.settings.show_sale_badge -%}
+                <span class="deal-badge">-{{ discount_percent }}%</span>
+              {%- endif -%}
+
+              <a href="{{ product.url }}" class="prod-img-wrap">
+                {%- if product.featured_image != blank -%}
+                  <img 
+                    src="{{ product.featured_image | image_url: width: 400 }}" 
+                    alt="{{ product.title | escape }}" 
+                    loading="lazy"
+                    width="{{ product.featured_image.width }}"
+                    height="{{ product.featured_image.height }}"
+                  >
+                {%- else -%}
+                  {{ 'product-1' | placeholder_svg_tag }}
+                {%- endif -%}
+              </a>
+
+              <a href="{{ product.url }}" class="prod-card-title">
+                {{ product.title }}
+              </a>
+
+              <div class="prod-card-prices">
+                {%- if on_sale -%}
+                  <span class="prod-card-compare">{{ product.compare_at_price | money }}</span>
+                  <span class="prod-card-price on-sale">{{ product.price | money }}</span>
+                {%- else -%}
+                  <span class="prod-card-price">{{ product.price | money }}</span>
+                {%- endif -%}
+              </div>
+
+              {%- assign variant_id = product.selected_or_first_available_variant.id -%}
+              {%- assign grid_action = section.settings.grid_btn_action | default: 'ajax_cart' -%}
+              {%- assign grid_link = section.settings.grid_btn_custom_url | default: product.url | default: '#' -%}
+              {%- assign is_redirect = false -%}
+              {%- if grid_action == 'redirect' -%}
+                {%- assign is_redirect = true -%}
+              {%- elsif grid_action == 'auto' and product.has_only_default_variant == false -%}
+                {%- assign is_redirect = true -%}
+              {%- endif -%}
+
+              {%- if is_redirect -%}
+                <a href="{{ grid_link }}" class="grid-add-btn">
+                  <span class="btn-label">
+                    {%- if product.available -%}
+                      {%- if grid_action == 'auto' and product.has_only_default_variant == false -%}
+                        {{ 'products.product.choose_options' | t | default: 'Choose Options' }}
+                      {%- else -%}
+                        {{ section.settings.grid_btn_label | default: 'View Product' }}
+                      {%- endif -%}
+                    {%- else -%}
+                      {{ 'products.product.sold_out' | t | default: 'Sold Out' }}
+                    {%- endif -%}
+                  </span>
+                </a>
+              {%- else -%}
+                <button type="button" 
+                        class="grid-add-btn ajax-add-to-cart-btn" 
+                        data-variant-id="{{ variant_id }}"
+                        data-product-url="{{ grid_link }}"
+                        {% unless product.available %}disabled{% endunless %}>
+                  <span class="btn-spinner"></span>
+                  <span class="btn-label">
+                    {%- if product.available -%}
+                      {{ section.settings.grid_btn_label | default: 'Add To Cart' }}
+                    {%- else -%}
+                      {{ 'products.product.sold_out' | t | default: 'Sold Out' }}
+                    {%- endif -%}
+                  </span>
+                </button>
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+        {%- else -%}
+          {%- comment -%} Default Shopify Theme Placeholders {%- endcomment -%}
+          {%- for i in (1..limit) -%}
+            {%- assign placeholder_index = i | modulo: 4 | plus: 1 -%}
+            <div class="deal-prod-card">
+              {%- if i == 4 and section.settings.show_sale_badge -%}
+                <span class="deal-badge">-15%</span>
+              {%- endif -%}
+
+              <a href="#" class="prod-img-wrap">
+                {{ 'product-apparel-' | append: placeholder_index | placeholder_svg_tag: 'placeholder-svg' }}
+              </a>
+
+              <a href="#" class="prod-card-title">
+                {{ 'onboarding.product_title' | t | default: 'Example product title' }}
+              </a>
+
+              <div class="prod-card-prices">
+                {%- if i == 4 -%}
+                  <span class="prod-card-compare">{{ 2999 | money }}</span>
+                  <span class="prod-card-price on-sale">{{ 1999 | money }}</span>
+                {%- else -%}
+                  <span class="prod-card-price">{{ 1999 | money }}</span>
+                {%- endif -%}
+              </div>
+
+              {%- if section.settings.grid_btn_action == 'redirect' -%}
+                <a href="{{ section.settings.grid_btn_custom_url | default: '#' }}" class="grid-add-btn">
+                  <span class="btn-label">{{ section.settings.grid_btn_label | default: 'View Product' }}</span>
+                </a>
+              {%- else -%}
+                <button type="button" class="grid-add-btn ajax-add-to-cart-btn" data-variant-id="" data-product-url="{{ section.settings.grid_btn_custom_url | default: '#' }}">
+                  <span class="btn-spinner"></span>
+                  <span class="btn-label">{{ section.settings.grid_btn_label | default: 'Add To Cart' }}</span>
+                </button>
+              {%- endif -%}
+            </div>
+          {%- endfor -%}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    const sectionContainer = document.querySelector('.deals-sec-{{ section.id }}');
+    if (!sectionContainer) return;
+
+    /* 1. Countdown Timer Logic */
+    function initCountdowns() {
+      const timerBoxes = sectionContainer.querySelectorAll('.deal-countdown-box');
+      timerBoxes.forEach(box => {
+        const endDateStr = box.getAttribute('data-end-date');
+        const endHours = parseFloat(box.getAttribute('data-end-hours')) || 48;
+        
+        let targetTime;
+        if (endDateStr && !isNaN(Date.parse(endDateStr))) {
+          targetTime = new Date(endDateStr).getTime();
+        } else {
+          // Dynamic persistent session countdown
+          let storedTarget = localStorage.getItem('deal_timer_target_{{ section.id }}');
+          if (!storedTarget || isNaN(storedTarget) || parseInt(storedTarget) < Date.now()) {
+            storedTarget = Date.now() + endHours * 60 * 60 * 1000;
+            localStorage.setItem('deal_timer_target_{{ section.id }}', storedTarget);
+          }
+          targetTime = parseInt(storedTarget);
+        }
+
+        function update() {
+          const now = Date.now();
+          let diff = Math.max(0, targetTime - now);
+
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+          const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+          const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+          const daysEl = box.querySelector('.days-val');
+          const hoursEl = box.querySelector('.hours-val');
+          const minsEl = box.querySelector('.mins-val');
+          const secsEl = box.querySelector('.secs-val');
+
+          if (daysEl) daysEl.textContent = String(days).padStart(2, '0');
+          if (hoursEl) hoursEl.textContent = String(hours).padStart(2, '0');
+          if (minsEl) minsEl.textContent = String(mins).padStart(2, '0');
+          if (secsEl) secsEl.textContent = String(secs).padStart(2, '0');
+        }
+
+        update();
+        setInterval(update, 1000);
+      });
+    }
+
+    /* 2. Deal Slides Carousel (for < > arrows) */
+    function initDealCarousel() {
+      const slides = sectionContainer.querySelectorAll('.deal-slide');
+      const prevBtn = sectionContainer.querySelector('.deal-prev-btn');
+      const nextBtn = sectionContainer.querySelector('.deal-next-btn');
+
+      if (!slides.length || slides.length <= 1) {
+        if (prevBtn) prevBtn.style.opacity = '0.5';
+        if (nextBtn) nextBtn.style.opacity = '0.5';
+        return;
+      }
+
+      let currentIndex = 0;
+
+      function showSlide(index) {
+        slides.forEach((s, idx) => {
+          s.classList.toggle('active', idx === index);
+        });
+      }
+
+      if (prevBtn) {
+        prevBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          currentIndex = (currentIndex - 1 + slides.length) % slides.length;
+          showSlide(currentIndex);
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          currentIndex = (currentIndex + 1) % slides.length;
+          showSlide(currentIndex);
+        });
+      }
+    }
+
+    /* 3. AJAX Add to Cart */
+    function initAjaxCart() {
+      const addBtns = sectionContainer.querySelectorAll('.ajax-add-to-cart-btn');
+      addBtns.forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          e.preventDefault();
+          const variantId = btn.getAttribute('data-variant-id');
+          const prodUrl = btn.getAttribute('data-product-url');
+
+          if (!variantId) {
+            if (prodUrl && prodUrl !== '#' && prodUrl !== '') {
+              window.location.href = prodUrl;
+              return;
+            }
+            const label = btn.querySelector('.btn-label');
+            if (label) {
+              const originalText = label.textContent;
+              label.textContent = 'Added ✓';
+              setTimeout(() => { label.textContent = originalText; }, 1500);
+            }
+            return;
+          }
+
+          btn.classList.add('loading');
+
+          try {
+            const cartAddUrl = window.routes ? window.routes.cart_add_url : (window.Shopify ? `${window.Shopify.routes.root}cart/add.js` : '/cart/add.js');
+
+            const formData = new FormData();
+            formData.append('id', variantId);
+            formData.append('quantity', '1');
+            formData.append('sections', 'cart-drawer,cart-icon-bubble');
+            formData.append('sections_url', window.location.pathname);
+
+            const response = await fetch(cartAddUrl, {
+              method: 'POST',
+              headers: {
+                'Accept': 'application/javascript, application/json'
+              },
+              body: formData
+            });
+
+            const data = await response.json();
+            btn.classList.remove('loading');
+
+            if (response.ok) {
+              const label = btn.querySelector('.btn-label');
+              if (label) {
+                const originalText = label.textContent;
+                label.textContent = 'Added ✓';
+                setTimeout(() => { label.textContent = originalText; }, 1800);
+              }
+
+              // Update Dawn Cart Drawer
+              const cartDrawer = document.querySelector('cart-drawer');
+              if (cartDrawer && data.sections && data.sections['cart-drawer']) {
+                const parsedHtml = new DOMParser().parseFromString(data.sections['cart-drawer'], 'text/html');
+                const newDrawerContent = parsedHtml.querySelector('#CartDrawer');
+                const currentDrawer = document.querySelector('#CartDrawer');
+                if (newDrawerContent && currentDrawer) {
+                  currentDrawer.innerHTML = newDrawerContent.innerHTML;
+                }
+                cartDrawer.classList.remove('is-empty');
+                if (typeof cartDrawer.open === 'function') {
+                  cartDrawer.open();
+                }
+              }
+
+              // Update Cart Bubble
+              const cartBubble = document.querySelector('#cart-icon-bubble');
+              if (cartBubble && data.sections && data.sections['cart-icon-bubble']) {
+                const parsedBubble = new DOMParser().parseFromString(data.sections['cart-icon-bubble'], 'text/html');
+                const newBubble = parsedBubble.querySelector('#cart-icon-bubble');
+                if (newBubble) {
+                  cartBubble.innerHTML = newBubble.innerHTML;
+                }
+              }
+
+              // Trigger global events
+              if (typeof publish === 'function' && window.PUB_SUB_EVENTS) {
+                publish(PUB_SUB_EVENTS.cartUpdate, { source: 'deals-showcase', cartData: data });
+              }
+              document.documentElement.dispatchEvent(new CustomEvent('cart:refresh', { bubbles: true }));
+            } else {
+              console.warn('Shopify Cart Add response:', data);
+              if (prodUrl && prodUrl !== '#') {
+                window.location.href = prodUrl;
+              } else {
+                const label = btn.querySelector('.btn-label');
+                if (label) {
+                  const originalText = label.textContent;
+                  label.textContent = data.description || 'Error';
+                  setTimeout(() => { label.textContent = originalText; }, 2000);
+                }
+              }
+            }
+          } catch (err) {
+            console.error('Add to cart failed:', err);
+            btn.classList.remove('loading');
+            if (prodUrl && prodUrl !== '#') {
+              window.location.href = prodUrl;
+            }
+          }
+        });
+      });
+    }
+
+    initCountdowns();
+    initDealCarousel();
+    initAjaxCart();
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Deals Showcase & Grid",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "🎨 Background Styling"
+    },
+    {
+      "type": "select",
+      "id": "bg_type",
+      "label": "Background Type",
+      "options": [
+        { "value": "solid", "label": "Solid Color" },
+        { "value": "gradient", "label": "Linear Gradient" },
+        { "value": "preset", "label": "Designer Presets" },
+        { "value": "transparent", "label": "Transparent" }
+      ],
+      "default": "solid"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background / Start Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_end",
+      "label": "Gradient End Color",
+      "default": "#faf7f2"
+    },
+    {
+      "type": "select",
+      "id": "gradient_direction",
+      "label": "Gradient Direction",
+      "options": [
+        { "value": "to bottom", "label": "Top to Bottom (↓)" },
+        { "value": "to right", "label": "Left to Right (→)" },
+        { "value": "135deg", "label": "Diagonal (↘)" },
+        { "value": "to top", "label": "Bottom to Top (↑)" }
+      ],
+      "default": "to bottom"
+    },
+    {
+      "type": "select",
+      "id": "preset_gradient",
+      "label": "Preset Designer Gradients",
+      "options": [
+        { "value": "warm_sand", "label": "Warm Sand Fade" },
+        { "value": "apothecary_cream", "label": "Apothecary Cream" },
+        { "value": "sunset_glow", "label": "Sunset Glow" },
+        { "value": "pearl_white", "label": "Pearl White Soft" },
+        { "value": "espresso_dark", "label": "Rich Espresso (Dark)" }
+      ],
+      "default": "warm_sand"
+    },
+    {
+      "type": "range",
+      "id": "bg_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Background Opacity",
+      "default": 100
+    },
+    {
+      "type": "select",
+      "id": "bg_blend_mode",
+      "label": "Component Blending Mode",
+      "options": [
+        { "value": "normal", "label": "Normal" },
+        { "value": "multiply", "label": "Multiply" },
+        { "value": "screen", "label": "Screen" },
+        { "value": "overlay", "label": "Overlay" },
+        { "value": "soft-light", "label": "Soft Light" }
+      ],
+      "default": "normal"
+    },
+    {
+      "type": "header",
+      "content": "✍️ Section Heading & Subheading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Section Heading"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Section Subheading"
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Heading Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 18,
+      "max": 48,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading Font Size",
+      "default": 28
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading Font Size",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "heading_spacing",
+      "min": 10,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading Bottom Spacing",
+      "default": 28
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#111827"
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading Color",
+      "default": "#6b7280"
+    },
+    {
+      "type": "header",
+      "content": "🔥 Left Hero Deal Settings"
+    },
+    {
+      "type": "text",
+      "id": "deal_heading",
+      "label": "Deal Card Title",
+      "default": "Biggest Deals"
+    },
+    {
+      "type": "product",
+      "id": "featured_deal_product",
+      "label": "Primary Featured Deal Product"
+    },
+    {
+      "type": "color",
+      "id": "deal_card_bg",
+      "label": "Deal Card Background",
+      "default": "#f4f5f7"
+    },
+    {
+      "type": "range",
+      "id": "deal_card_width",
+      "min": 280,
+      "max": 450,
+      "step": 10,
+      "unit": "px",
+      "label": "Deal Card Width (Desktop)",
+      "default": 360
+    },
+    {
+      "type": "range",
+      "id": "deal_title_size",
+      "min": 16,
+      "max": 32,
+      "step": 1,
+      "unit": "px",
+      "label": "Deal Card Title Size",
+      "default": 20
+    },
+    {
+      "type": "color",
+      "id": "deal_title_color",
+      "label": "Deal Card Title Color",
+      "default": "#111827"
+    },
+    {
+      "type": "range",
+      "id": "deal_prod_title_size",
+      "min": 14,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Deal Product Title Size",
+      "default": 17
+    },
+    {
+      "type": "text",
+      "id": "default_countdown_date",
+      "label": "Target End Date (YYYY-MM-DD HH:MM)",
+      "info": "Leave blank to use dynamic rolling hours countdown"
+    },
+    {
+      "type": "range",
+      "id": "default_countdown_hours",
+      "min": 6,
+      "max": 168,
+      "step": 6,
+      "unit": "h",
+      "label": "Dynamic Countdown Duration (Hours)",
+      "default": 48
+    },
+    {
+      "type": "select",
+      "id": "deal_btn_action",
+      "label": "Deal Button Click Action",
+      "options": [
+        { "value": "ajax_cart", "label": "Add to Cart (Instant AJAX)" },
+        { "value": "redirect", "label": "Redirect to Product / Custom URL" }
+      ],
+      "default": "ajax_cart"
+    },
+    {
+      "type": "url",
+      "id": "deal_btn_url",
+      "label": "Custom Deal Button Link / URL",
+      "info": "Optional link for the deal card button if no product is attached"
+    },
+    {
+      "type": "text",
+      "id": "deal_btn_label",
+      "label": "Deal Button Text",
+      "default": "Add to cart"
+    },
+    {
+      "type": "header",
+      "content": "🛍️ Right Category / Collection Grid"
+    },
+    {
+      "type": "collection",
+      "id": "collection",
+      "label": "Select Category / Collection"
+    },
+    {
+      "type": "range",
+      "id": "products_to_show",
+      "min": 2,
+      "max": 24,
+      "step": 1,
+      "label": "Number of Items to Show",
+      "default": 6
+    },
+    {
+      "type": "range",
+      "id": "columns_desktop",
+      "min": 2,
+      "max": 4,
+      "step": 1,
+      "label": "Desktop Grid Columns",
+      "default": 3
+    },
+    {
+      "type": "select",
+      "id": "columns_mobile",
+      "label": "Mobile Grid Columns",
+      "options": [
+        { "value": "1", "label": "1 Column" },
+        { "value": "2", "label": "2 Columns" }
+      ],
+      "default": "2"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_sale_badge",
+      "label": "Show Sale % Badge",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "badge_bg_color",
+      "label": "Sale Badge Background",
+      "default": "#ff4d4f"
+    },
+    {
+      "type": "select",
+      "id": "grid_btn_action",
+      "label": "Grid Buttons Click Action",
+      "options": [
+        { "value": "ajax_cart", "label": "Add to Cart (Instant AJAX)" },
+        { "value": "redirect", "label": "Redirect to Product / Custom URL" },
+        { "value": "auto", "label": "Add to Cart (Redirect if has variants)" }
+      ],
+      "default": "ajax_cart",
+      "info": "Choose whether the button adds to cart or opens a page."
+    },
+    {
+      "type": "url",
+      "id": "grid_btn_custom_url",
+      "label": "Custom Grid Buttons Link / URL",
+      "info": "Optional custom URL for all grid buttons. If left empty, it opens each product's page."
+    },
+    {
+      "type": "text",
+      "id": "grid_btn_label",
+      "label": "Grid Item Button Text",
+      "default": "Add To Cart"
+    },
+    {
+      "type": "header",
+      "content": "🔤 Product Card Typography & Colors"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Product Title Size",
+      "default": 14
+    },
+    {
+      "type": "select",
+      "id": "title_weight",
+      "label": "Product Title Weight",
+      "options": [
+        { "value": "400", "label": "400 Regular" },
+        { "value": "500", "label": "500 Medium" },
+        { "value": "600", "label": "600 Semi-Bold" },
+        { "value": "700", "label": "700 Bold" },
+        { "value": "800", "label": "800 Extra Bold" }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "select",
+      "id": "title_transform",
+      "label": "Product Title Case",
+      "options": [
+        { "value": "none", "label": "None (Normal)" },
+        { "value": "capitalize", "label": "Capitalize" },
+        { "value": "uppercase", "label": "UPPERCASE" }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "range",
+      "id": "title_letter_spacing",
+      "min": 0,
+      "max": 4,
+      "step": 0.5,
+      "unit": "px",
+      "label": "Product Title Letter Spacing",
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Product Title Color",
+      "default": "#111827"
+    },
+    {
+      "type": "color",
+      "id": "title_hover_color",
+      "label": "Product Title Hover Color",
+      "default": "#ff6600"
+    },
+    {
+      "type": "color",
+      "id": "price_color",
+      "label": "Regular Price Color",
+      "default": "#111827"
+    },
+    {
+      "type": "color",
+      "id": "price_highlight_color",
+      "label": "Sale / Highlight Price Color",
+      "default": "#ff6600"
+    },
+    {
+      "type": "header",
+      "content": "🔘 Button & UI Accent Styling"
+    },
+    {
+      "type": "color",
+      "id": "btn_bg_color",
+      "label": "Button Background Color",
+      "default": "#ff6600"
+    },
+    {
+      "type": "color",
+      "id": "btn_hover_bg_color",
+      "label": "Button Hover Background Color",
+      "default": "#e65c00"
+    },
+    {
+      "type": "color",
+      "id": "btn_text_color",
+      "label": "Button Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "btn_border_radius",
+      "min": 4,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Button Border Radius",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "card_border_radius",
+      "min": 4,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "label": "Card Border Radius",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "📐 Layout & Spacing"
+    },
+    {
+      "type": "range",
+      "id": "container_width",
+      "min": 1000,
+      "max": 1600,
+      "step": 20,
+      "unit": "px",
+      "label": "Container Max Width",
+      "default": 1320
+    },
+    {
+      "type": "range",
+      "id": "grid_gap",
+      "min": 12,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Grid Gap Spacing",
+      "default": 24
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 50
+    }
+  ],
+  "blocks": [
+    {
+      "type": "deal_item",
+      "name": "Featured Deal Slide",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Deal Product"
+        },
+        {
+          "type": "text",
+          "id": "deal_title",
+          "label": "Custom Title Override",
+          "info": "Leave blank to use the product title"
+        },
+        {
+          "type": "url",
+          "id": "deal_url",
+          "label": "Custom Deal Link / Redirect URL",
+          "info": "Optional. Custom URL to link this slide directly to any page or collection"
+        },
+        {
+          "type": "image_picker",
+          "id": "custom_image",
+          "label": "Custom Image Override"
+        },
+        {
+          "type": "text",
+          "id": "custom_price",
+          "label": "Custom Sale Price (e.g. $240.00)"
+        },
+        {
+          "type": "text",
+          "id": "custom_compare_price",
+          "label": "Custom Compare At Price (e.g. $360.00)"
+        },
+        {
+          "type": "text",
+          "id": "countdown_date",
+          "label": "Specific End Date (YYYY-MM-DD HH:MM)"
+        },
+        {
+          "type": "range",
+          "id": "countdown_hours",
+          "min": 6,
+          "max": 168,
+          "step": 6,
+          "unit": "h",
+          "label": "Countdown Duration (Hours)",
+          "default": 48
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Deals Showcase & Grid",
+      "blocks": [
+        {
+          "type": "deal_item"
+        },
+        {
+          "type": "deal_item"
+        },
+        {
+          "type": "deal_item"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,440 @@
+{%- comment -%}
+  Stylish Section Divider Component
+  Creates seamless shape transitions between adjacent sections.
+{%- endcomment -%}
+
+{%- style -%}
+  .stylish-divider-{{ section.id }} {
+    --divider-bg-top: {{ section.settings.color_top | default: 'transparent' }};
+    --divider-bg-bottom: {{ section.settings.color_bottom | default: 'transparent' }};
+    --divider-accent: {{ section.settings.color_accent | default: 'rgba(0,0,0,0.08)' }};
+    
+    position: relative;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    line-height: 0;
+    font-size: 0;
+    overflow: hidden;
+    display: block;
+    background-color: var(--divider-bg-top);
+    margin-top: {{ section.settings.margin_top }}px;
+    margin-bottom: {{ section.settings.margin_bottom }}px;
+    z-index: {{ section.settings.z_index | default: 2 }};
+  }
+
+  .stylish-divider-{{ section.id }} .divider-inner {
+    position: relative;
+    width: 100%;
+    height: {{ section.settings.height_desktop }}px;
+    display: block;
+    line-height: 0;
+    font-size: 0;
+    {% if section.settings.flip_horizontal and section.settings.flip_vertical %}
+      transform: scale(-1, -1);
+    {% elsif section.settings.flip_horizontal %}
+      transform: scaleX(-1);
+    {% elsif section.settings.flip_vertical %}
+      transform: scaleY(-1);
+    {% endif %}
+  }
+
+  .stylish-divider-{{ section.id }} svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    vertical-align: bottom;
+  }
+
+  /* Design: Floating Pill Bar Bridge (Image 4) */
+  .stylish-divider-{{ section.id }} .pill-bridge-wrapper {
+    position: relative;
+    width: 100%;
+    height: {{ section.settings.height_desktop }}px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(
+      to bottom,
+      var(--divider-bg-top) 0%,
+      var(--divider-bg-top) 50%,
+      var(--divider-bg-bottom) 50%,
+      var(--divider-bg-bottom) 100%
+    );
+    padding: 0 20px;
+    box-sizing: border-box;
+  }
+
+  .stylish-divider-{{ section.id }} .pill-bridge-bar {
+    width: 100%;
+    max-width: {{ section.settings.pill_max_width }}px;
+    height: {{ section.settings.pill_height }}px;
+    border-radius: 9999px;
+    background: {{ section.settings.pill_background | default: 'linear-gradient(90deg, #dbeafe 0%, #ede9fe 50%, #fce7f3 100%)' }};
+    border: 1px solid {{ section.settings.pill_border_color | default: 'rgba(255, 255, 255, 0.8)' }};
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.08), 0 0 15px rgba(255, 255, 255, 0.5) inset;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Optional Shadow */
+  {% if section.settings.enable_shadow %}
+    .stylish-divider-{{ section.id }} .divider-shape-main {
+      filter: drop-shadow(0px -4px {{ section.settings.shadow_blur }}px rgba(0, 0, 0, {{ section.settings.shadow_opacity | divided_by: 100.0 }}));
+    }
+  {% endif %}
+
+  @media screen and (max-width: 749px) {
+    .stylish-divider-{{ section.id }} .divider-inner,
+    .stylish-divider-{{ section.id }} .pill-bridge-wrapper {
+      height: {{ section.settings.height_mobile }}px;
+    }
+    .stylish-divider-{{ section.id }} .pill-bridge-bar {
+      height: {{ section.settings.pill_height | times: 0.75 | round }}px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="stylish-divider-{{ section.id }}" aria-hidden="true">
+  {% if section.settings.style == 'pill_bridge' %}
+    {%- comment -%} DESIGN 4: Floating Pill Bar Bridge {%- endcomment -%}
+    <div class="pill-bridge-wrapper">
+      <div class="pill-bridge-bar"></div>
+    </div>
+
+  {% elsif section.settings.style == 'torn_paper' %}
+    {%- comment -%} DESIGN 3: Authentic Organic Torn Paper / Deckle Edge {%- endcomment -%}
+    <div class="divider-inner">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+        <defs>
+          {% if section.settings.enable_gradient %}
+            <linearGradient id="grad-{{ section.id }}" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="{{ section.settings.gradient_color_start | default: section.settings.color_bottom }}" />
+              <stop offset="100%" stop-color="{{ section.settings.gradient_color_end | default: section.settings.color_bottom }}" />
+            </linearGradient>
+          {% endif %}
+        </defs>
+        
+        <!-- Underlying exposed paper fiber fringe shadow -->
+        <path
+          d="M0,28 L32,25 L65,30 L98,24 L130,27 L168,22 L205,26 L238,20 L275,28 L310,24 L348,22 L385,29 L420,33 L458,25 L490,20 L525,23 L550,14 L585,16 L615,22 L650,26 L690,20 L730,25 L770,22 L810,27 L845,31 L880,24 L915,28 L955,23 L990,27 L1025,21 L1060,28 L1095,24 L1130,22 L1168,28 L1205,25 L1240,21 L1280,27 L1315,31 L1350,24 L1390,28 L1420,25 L1440,26 L1440,80 L0,80 Z"
+          fill="var(--divider-accent)"
+        ></path>
+
+        <!-- Main Torn Paper Surface with realistic jagged rips, flat plateaus and micro-deckle -->
+        <path
+          class="divider-shape-main"
+          d="M0,36 L24,34 L48,39 L72,35 L96,38 L120,31 L145,34 L170,41 L195,36 L220,38 L242,32 L268,36 L292,30 L315,35 L338,40 L360,37 L382,42 L405,46 L428,38 L450,42 L472,33 L495,29 L515,33 L535,21 L560,23 L582,29 L605,34 L628,38 L650,35 L672,39 L695,31 L720,36 L745,32 L770,38 L795,43 L820,37 L845,41 L870,35 L895,39 L920,33 L945,38 L970,42 L995,36 L1020,40 L1045,33 L1070,38 L1095,35 L1120,32 L1145,38 L1170,35 L1195,30 L1220,36 L1245,40 L1270,35 L1295,39 L1320,33 L1345,38 L1370,42 L1395,37 L1420,34 L1440,36 L1440,80 L0,80 Z"
+          fill="{% if section.settings.enable_gradient %}url(#grad-{{ section.id }}){% else %}var(--divider-bg-bottom){% endif %}"
+        ></path>
+      </svg>
+    </div>
+
+  {% elsif section.settings.style == 'wave_deep' %}
+    {%- comment -%} DESIGN 2: Deep Fluid Dynamic Wave (Image 2) {%- endcomment -%}
+    <div class="divider-inner">
+      <svg viewBox="0 0 1440 100" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+        <defs>
+          {% if section.settings.enable_gradient %}
+            <linearGradient id="grad-{{ section.id }}" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="{{ section.settings.gradient_color_start | default: section.settings.color_bottom }}" />
+              <stop offset="100%" stop-color="{{ section.settings.gradient_color_end | default: section.settings.color_bottom }}" />
+            </linearGradient>
+          {% endif %}
+        </defs>
+        <path
+          class="divider-shape-main"
+          d="M0,50 C240,110 520,10 800,68 C1080,120 1280,30 1440,55 L1440,100 L0,100 Z"
+          fill="{% if section.settings.enable_gradient %}url(#grad-{{ section.id }}){% else %}var(--divider-bg-bottom){% endif %}"
+        ></path>
+      </svg>
+    </div>
+
+  {% else %}
+    {%- comment -%} DESIGN 1: Gentle Organic Wave (Image 1) {%- endcomment -%}
+    <div class="divider-inner">
+      <svg viewBox="0 0 1440 80" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" shape-rendering="geometricPrecision">
+        <defs>
+          {% if section.settings.enable_gradient %}
+            <linearGradient id="grad-{{ section.id }}" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="{{ section.settings.gradient_color_start | default: section.settings.color_bottom }}" />
+              <stop offset="100%" stop-color="{{ section.settings.gradient_color_end | default: section.settings.color_bottom }}" />
+            </linearGradient>
+          {% endif %}
+        </defs>
+        <path
+          class="divider-shape-main"
+          d="M0,35 C380,80 720,10 1080,45 C1260,62 1370,48 1440,38 L1440,80 L0,80 Z"
+          fill="{% if section.settings.enable_gradient %}url(#grad-{{ section.id }}){% else %}var(--divider-bg-bottom){% endif %}"
+        ></path>
+      </svg>
+    </div>
+  {% endif %}
+</div>
+
+{% schema %}
+{
+  "name": "Section Divider",
+  "tag": "section",
+  "class": "section-stylish-divider",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Divider Style"
+    },
+    {
+      "type": "select",
+      "id": "style",
+      "label": "Design Style",
+      "options": [
+        {
+          "value": "wave_smooth",
+          "label": "1. Gentle Wave (Image 1)"
+        },
+        {
+          "value": "wave_deep",
+          "label": "2. Deep Fluid Wave (Image 2)"
+        },
+        {
+          "value": "torn_paper",
+          "label": "3. Torn Paper Edge (Image 3)"
+        },
+        {
+          "value": "pill_bridge",
+          "label": "4. Floating Pill Bar (Image 4)"
+        }
+      ],
+      "default": "wave_smooth"
+    },
+    {
+      "type": "header",
+      "content": "Section Colors"
+    },
+    {
+      "type": "color",
+      "id": "color_top",
+      "label": "Upper Section Color",
+      "default": "#ffffff",
+      "info": "Match to the background color of the section DIRECTLY ABOVE this divider."
+    },
+    {
+      "type": "color",
+      "id": "color_bottom",
+      "label": "Lower Section Color",
+      "default": "#171b29",
+      "info": "Match to the background color of the section DIRECTLY BELOW this divider."
+    },
+    {
+      "type": "color",
+      "id": "color_accent",
+      "label": "Torn Paper Accent Layer",
+      "default": "rgba(0,0,0,0.08)",
+      "info": "Subtle shadow/fiber tone underneath the torn paper edge."
+    },
+    {
+      "type": "header",
+      "content": "Gradient Fill (Optional)"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_gradient",
+      "label": "Enable Gradient on Lower Shape",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_start",
+      "label": "Gradient Start Color",
+      "default": "#171b29"
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_end",
+      "label": "Gradient End Color",
+      "default": "#2b354f"
+    },
+    {
+      "type": "header",
+      "content": "Dimensions & Orientation"
+    },
+    {
+      "type": "range",
+      "id": "height_desktop",
+      "min": 20,
+      "max": 180,
+      "step": 5,
+      "unit": "px",
+      "label": "Desktop Height",
+      "default": 65
+    },
+    {
+      "type": "range",
+      "id": "height_mobile",
+      "min": 15,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "label": "Mobile Height",
+      "default": 35
+    },
+    {
+      "type": "checkbox",
+      "id": "flip_horizontal",
+      "label": "Flip Horizontally (Mirror X)",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "flip_vertical",
+      "label": "Invert Curve (Flip Y)",
+      "default": false,
+      "info": "Invert direction of wave or rip."
+    },
+    {
+      "type": "header",
+      "content": "Spacing Adjustment"
+    },
+    {
+      "type": "range",
+      "id": "margin_top",
+      "min": -80,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Top Spacing / Pull-Up",
+      "default": 0,
+      "info": "Use negative values (e.g. -20px) to pull the divider closer to the section above."
+    },
+    {
+      "type": "range",
+      "id": "margin_bottom",
+      "min": -80,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Bottom Spacing / Pull-Up",
+      "default": 0,
+      "info": "Use negative values (e.g. -20px) to pull the section below under the divider."
+    },
+    {
+      "type": "range",
+      "id": "z_index",
+      "min": 1,
+      "max": 10,
+      "step": 1,
+      "label": "Z-Index Layer",
+      "default": 2
+    },
+    {
+      "type": "header",
+      "content": "Floating Pill Settings (Design 4)"
+    },
+    {
+      "type": "range",
+      "id": "pill_max_width",
+      "min": 300,
+      "max": 1400,
+      "step": 50,
+      "unit": "px",
+      "label": "Pill Width",
+      "default": 1100
+    },
+    {
+      "type": "range",
+      "id": "pill_height",
+      "min": 10,
+      "max": 60,
+      "step": 2,
+      "unit": "px",
+      "label": "Pill Thickness",
+      "default": 24
+    },
+    {
+      "type": "text",
+      "id": "pill_background",
+      "label": "Pill CSS Gradient / Color",
+      "default": "linear-gradient(90deg, #dbeafe 0%, #ede9fe 50%, #fce7f3 100%)",
+      "info": "Paste any CSS gradient or hex color"
+    },
+    {
+      "type": "color",
+      "id": "pill_border_color",
+      "label": "Pill Border Color",
+      "default": "rgba(255, 255, 255, 0.8)"
+    },
+    {
+      "type": "header",
+      "content": "Drop Shadow"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_shadow",
+      "label": "Enable Soft Drop Shadow",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "shadow_blur",
+      "min": 2,
+      "max": 20,
+      "step": 2,
+      "unit": "px",
+      "label": "Shadow Blur",
+      "default": 8
+    },
+    {
+      "type": "range",
+      "id": "shadow_opacity",
+      "min": 5,
+      "max": 40,
+      "step": 5,
+      "unit": "%",
+      "label": "Shadow Opacity",
+      "default": 10
+    }
+  ],
+  "presets": [
+    {
+      "name": "Gentle Wave Divider",
+      "settings": {
+        "style": "wave_smooth",
+        "color_top": "#ffffff",
+        "color_bottom": "#171b29",
+        "height_desktop": 65,
+        "height_mobile": 35
+      }
+    },
+    {
+      "name": "Deep Fluid Wave",
+      "settings": {
+        "style": "wave_deep",
+        "color_top": "#ffffff",
+        "color_bottom": "#171b29",
+        "height_desktop": 85,
+        "height_mobile": 45
+      }
+    },
+    {
+      "name": "Torn Paper Divider",
+      "settings": {
+        "style": "torn_paper",
+        "color_top": "#ffffff",
+        "color_bottom": "#f4f1ea",
+        "color_accent": "rgba(0,0,0,0.08)",
+        "height_desktop": 50,
+        "height_mobile": 30
+      }
+    },
+    {
+      "name": "Floating Pill Divider",
+      "settings": {
+        "style": "pill_bridge",
+        "color_top": "#ffffff",
+        "color_bottom": "#f8fafc",
+        "height_desktop": 60,
+        "height_mobile": 40
+      }
+    }
+  ]
+}
+{% endschema %}

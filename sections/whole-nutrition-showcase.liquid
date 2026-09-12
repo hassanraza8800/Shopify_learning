@@ -1,0 +1,1371 @@
+{%- comment -%}
+  Whole Nutrition Showcase / Ingredient Orbit Section
+  - Center hero circular bowl image with optional breathing/floating animation
+  - 4 surrounding feature cards with organic blob/star shape image badges (2 left, 2 right)
+  - Full Animation Engine with customizable animation types, durations, and scroll triggers
+  - Complete Background & Typography Engine (Solid, Gradient, Presets, Opacity, Custom Colors)
+{%- endcomment -%}
+
+{%- assign bg_type = section.settings.bg_type | default: 'solid' -%}
+{%- assign bg_color = section.settings.bg_color | default: '#faf7f2' -%}
+{%- assign bg_color_end = section.settings.gradient_color_end | default: '#ffffff' -%}
+
+{%- assign raw_dir = section.settings.gradient_direction | default: 'to bottom' -%}
+{%- case raw_dir -%}
+  {%- when 'to_right', 'to right' -%}
+    {%- assign bg_dir = 'to right' -%}
+  {%- when 'to_top', 'to top' -%}
+    {%- assign bg_dir = 'to top' -%}
+  {%- when 'to_left', 'to left' -%}
+    {%- assign bg_dir = 'to left' -%}
+  {%- when 'diagonal_down', '135deg' -%}
+    {%- assign bg_dir = '135deg' -%}
+  {%- when 'diagonal_up', '45deg' -%}
+    {%- assign bg_dir = '45deg' -%}
+  {%- else -%}
+    {%- assign bg_dir = 'to bottom' -%}
+{%- endcase -%}
+
+{%- capture section_bg_css -%}
+  {%- if bg_type == 'solid' -%}
+    background-color: {{ bg_color }} !important;
+  {%- elsif bg_type == 'gradient' or bg_type == 'linear' -%}
+    background: linear-gradient({{ bg_dir }}, {{ bg_color }}, {{ bg_color_end }}) !important;
+  {%- elsif bg_type == 'preset' -%}
+    {%- case section.settings.preset_gradient -%}
+      {%- when 'warm_sand' -%}
+        background: linear-gradient(180deg, #faf7f2 0%, #ffffff 100%) !important;
+      {%- when 'apothecary_cream' -%}
+        background: linear-gradient(135deg, #f5f0eb 0%, #e8ded4 100%) !important;
+      {%- when 'sunset_glow' -%}
+        background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%) !important;
+      {%- when 'pearl_white' -%}
+        background: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%) !important;
+      {%- when 'espresso_dark' -%}
+        background: linear-gradient(135deg, #2b1b10 0%, #170e08 100%) !important;
+      {%- else -%}
+        background: linear-gradient(180deg, #faf7f2 0%, #ffffff 100%) !important;
+    {%- endcase -%}
+  {%- elsif bg_type == 'transparent' -%}
+    background: transparent !important;
+  {%- else -%}
+    background-color: {{ bg_color }} !important;
+  {%- endif -%}
+{%- endcapture -%}
+
+<style>
+  .nutrition-sec-{{ section.id }} {
+    position: relative;
+    width: 100%;
+    padding-top: {{ section.settings.padding_top | default: 60 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | default: 60 }}px;
+    overflow: hidden;
+    box-sizing: border-box;
+    {{ section_bg_css | strip }}
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-bg-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    {{ section_bg_css | strip }}
+    {% if section.settings.bg_opacity < 100 and section.settings.bg_opacity != blank %}
+      opacity: {{ section.settings.bg_opacity | divided_by: 100.0 }};
+    {% endif %}
+    {% if section.settings.bg_blend_mode != blank and section.settings.bg_blend_mode != 'normal' %}
+      mix-blend-mode: {{ section.settings.bg_blend_mode }};
+    {% endif %}
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-container {
+    max-width: {{ section.settings.container_width | default: 1200 }}px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+    z-index: 1;
+    box-sizing: border-box;
+  }
+
+  /* Heading & Header Area */
+  .nutrition-sec-{{ section.id }} .nutrition-header {
+    text-align: {{ section.settings.heading_align | default: 'center' }};
+    margin-bottom: {{ section.settings.heading_spacing | default: 48 }}px;
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-heading {
+    font-size: {{ section.settings.heading_size | default: 32 }}px;
+    font-weight: {{ section.settings.heading_weight | default: '800' }};
+    color: {{ section.settings.heading_color | default: '#6d4327' }};
+    text-transform: {{ section.settings.heading_transform | default: 'uppercase' }};
+    letter-spacing: {{ section.settings.heading_letter_spacing | default: 1 }}px;
+    margin: 0 0 10px 0;
+    line-height: 1.25;
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-subheading {
+    font-size: {{ section.settings.subheading_size | default: 15 }}px;
+    color: {{ section.settings.subheading_color | default: '#7a6455' }};
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* Main 3-Column Showcase Layout */
+  .nutrition-sec-{{ section.id }} .nutrition-stage {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    justify-content: center;
+    gap: {{ section.settings.stage_gap | default: 40 }}px;
+    position: relative;
+  }
+
+  /* Left & Right Feature Columns */
+  .nutrition-sec-{{ section.id }} .nutrition-col {
+    display: flex;
+    flex-direction: column;
+    gap: {{ section.settings.feature_vertical_gap | default: 56 }}px;
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-col--left {
+    text-align: {{ section.settings.text_align_left | default: 'center' }};
+    align-items: {% if section.settings.text_align_left == 'left' %}flex-start{% elsif section.settings.text_align_left == 'right' %}flex-end{% else %}center{% endif %};
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-col--right {
+    text-align: {{ section.settings.text_align_right | default: 'center' }};
+    align-items: {% if section.settings.text_align_right == 'left' %}flex-start{% elsif section.settings.text_align_right == 'right' %}flex-end{% else %}center{% endif %};
+  }
+
+  /* Feature Item Card */
+  .nutrition-sec-{{ section.id }} .nutrition-feature {
+    display: flex;
+    flex-direction: column;
+    align-items: inherit;
+    max-width: 320px;
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.4, 1);
+    position: relative;
+    cursor: default;
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-feature:hover {
+    transform: translateY(-6px);
+  }
+
+  /* Organic Star / Blob Badge */
+  .nutrition-sec-{{ section.id }} .nutrition-badge-wrap {
+    width: {{ section.settings.badge_size | default: 80 }}px;
+    height: {{ section.settings.badge_size | default: 80 }}px;
+    margin-bottom: {{ section.settings.badge_spacing | default: 16 }}px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-badge {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.4, 1), box-shadow 0.4s ease;
+    clip-path: url(#blobClip-{{ section.id }});
+    -webkit-clip-path: url(#blobClip-{{ section.id }});
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-feature:hover .nutrition-badge {
+    transform: scale(1.08) rotate(4deg);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.18);
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-badge__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-feature:hover .nutrition-badge__img {
+    transform: scale(1.12);
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-badge__svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Feature Typography */
+  .nutrition-sec-{{ section.id }} .nutrition-feature__title {
+    font-size: {{ section.settings.feature_title_size | default: 18 }}px;
+    font-weight: {{ section.settings.feature_title_weight | default: '700' }};
+    color: {{ section.settings.feature_title_color | default: '#5c3a21' }};
+    text-transform: {{ section.settings.feature_title_transform | default: 'capitalize' }};
+    letter-spacing: {{ section.settings.feature_title_spacing | default: 0 }}px;
+    margin: 0 0 8px 0;
+    line-height: 1.3;
+    transition: color 0.25s ease;
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-feature:hover .nutrition-feature__title {
+    color: {{ section.settings.feature_title_hover_color | default: '#2b1b10' }};
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-feature__text {
+    font-size: {{ section.settings.feature_text_size | default: 13 }}px;
+    color: {{ section.settings.feature_text_color | default: '#7a6455' }};
+    line-height: 1.55;
+    margin: 0;
+    font-weight: 400;
+  }
+
+  /* Centerpiece Hero Bowl */
+  .nutrition-sec-{{ section.id }} .nutrition-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    padding: 10px;
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-bowl-wrap {
+    width: {{ section.settings.bowl_size_desktop | default: 380 }}px;
+    height: {{ section.settings.bowl_size_desktop | default: 380 }}px;
+    max-width: 100%;
+    position: relative;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-bowl-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 20px 50px rgba(78, 48, 22, 0.16), 0 8px 20px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background: #ffffff;
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.4, 1), box-shadow 0.5s ease;
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-bowl-inner:hover {
+    transform: scale(1.03);
+    box-shadow: 0 26px 60px rgba(78, 48, 22, 0.22), 0 12px 28px rgba(0, 0, 0, 0.12);
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-bowl__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .nutrition-sec-{{ section.id }} .nutrition-bowl__svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* ============================================================
+     ANIMATION ENGINE
+     ============================================================ */
+  {% if section.settings.enable_animation %}
+    {%- assign ease_curve = 'cubic-bezier(0.16, 1, 0.3, 1)' -%}
+    {%- case section.settings.anim_curve -%}
+      {%- when 'spring' -%}
+        {%- assign ease_curve = 'cubic-bezier(0.34, 1.56, 0.64, 1)' -%}
+      {%- when 'bouncy' -%}
+        {%- assign ease_curve = 'cubic-bezier(0.68, -0.55, 0.265, 1.55)' -%}
+      {%- when 'gentle' -%}
+        {%- assign ease_curve = 'cubic-bezier(0.25, 0.1, 0.25, 1)' -%}
+      {%- when 'ease_out' -%}
+        {%- assign ease_curve = 'ease-out' -%}
+      {%- else -%}
+        {%- assign ease_curve = 'cubic-bezier(0.16, 1, 0.3, 1)' -%}
+    {%- endcase -%}
+
+    /* Initial state before scroll trigger */
+    .nutrition-sec-{{ section.id }} .anim-target {
+      opacity: 0;
+      transition-property: opacity, transform;
+      transition-duration: {{ section.settings.anim_duration | default: 0.8 }}s;
+      transition-timing-function: {{ ease_curve }};
+      will-change: opacity, transform;
+    }
+
+    {% case section.settings.anim_type %}
+      {% when 'fade_up' %}
+        .nutrition-sec-{{ section.id }} .anim-target {
+          transform: translateY(35px);
+        }
+        .nutrition-sec-{{ section.id }}.is-visible .anim-target {
+          opacity: 1;
+          transform: translateY(0);
+        }
+
+      {% when 'zoom_in' %}
+        .nutrition-sec-{{ section.id }} .anim-target {
+          transform: scale(0.85);
+        }
+        .nutrition-sec-{{ section.id }}.is-visible .anim-target {
+          opacity: 1;
+          transform: scale(1);
+        }
+
+      {% when 'slide_sides' %}
+        .nutrition-sec-{{ section.id }} .anim-left {
+          transform: translateX(-45px);
+        }
+        .nutrition-sec-{{ section.id }} .anim-right {
+          transform: translateX(45px);
+        }
+        .nutrition-sec-{{ section.id }} .anim-center {
+          transform: scale(0.85);
+        }
+        .nutrition-sec-{{ section.id }}.is-visible .anim-target {
+          opacity: 1;
+          transform: translate(0, 0) scale(1);
+        }
+
+      {% when 'radial_orbit' %}
+        .nutrition-sec-{{ section.id }} .anim-center {
+          transform: scale(0.7);
+        }
+        .nutrition-sec-{{ section.id }} .anim-item-1 {
+          transform: translate(-35px, -35px) scale(0.8);
+        }
+        .nutrition-sec-{{ section.id }} .anim-item-2 {
+          transform: translate(-35px, 35px) scale(0.8);
+        }
+        .nutrition-sec-{{ section.id }} .anim-item-3 {
+          transform: translate(35px, -35px) scale(0.8);
+        }
+        .nutrition-sec-{{ section.id }} .anim-item-4 {
+          transform: translate(35px, 35px) scale(0.8);
+        }
+        .nutrition-sec-{{ section.id }}.is-visible .anim-target {
+          opacity: 1;
+          transform: translate(0, 0) scale(1);
+        }
+
+      {% when 'fade_grow' %}
+        .nutrition-sec-{{ section.id }} .anim-target {
+          transform: scale(0.9) translateY(25px);
+        }
+        .nutrition-sec-{{ section.id }}.is-visible .anim-target {
+          opacity: 1;
+          transform: scale(1) translateY(0);
+        }
+
+      {% else %}
+        .nutrition-sec-{{ section.id }}.is-visible .anim-target {
+          opacity: 1;
+        }
+    {% endcase %}
+
+    /* Staggered Transition Delays */
+    .nutrition-sec-{{ section.id }}.is-visible .anim-delay-0 { transition-delay: 0.05s; }
+    .nutrition-sec-{{ section.id }}.is-visible .anim-delay-1 { transition-delay: 0.18s; }
+    .nutrition-sec-{{ section.id }}.is-visible .anim-delay-2 { transition-delay: 0.32s; }
+    .nutrition-sec-{{ section.id }}.is-visible .anim-delay-3 { transition-delay: 0.46s; }
+    .nutrition-sec-{{ section.id }}.is-visible .anim-delay-4 { transition-delay: 0.60s; }
+  {% endif %}
+
+  /* Continuous Gentle Floating / Breathing Animation */
+  {% if section.settings.enable_float %}
+    {%- assign float_dur_bowl = '6s' -%}
+    {%- assign float_dur_badge = '5.2s' -%}
+    {%- case section.settings.float_speed -%}
+      {%- when 'slow' -%}
+        {%- assign float_dur_bowl = '8.5s' -%}
+        {%- assign float_dur_badge = '7.5s' -%}
+      {%- when 'fast' -%}
+        {%- assign float_dur_bowl = '4s' -%}
+        {%- assign float_dur_badge = '3.5s' -%}
+      {%- else -%}
+        {%- assign float_dur_bowl = '6s' -%}
+        {%- assign float_dur_badge = '5.2s' -%}
+    {%- endcase -%}
+
+    @keyframes nutritionFloatCenter {
+      0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+      }
+      50% {
+        transform: translateY(-8px) rotate(1deg);
+      }
+    }
+
+    @keyframes nutritionBadgePulse {
+      0%, 100% {
+        transform: translateY(0px);
+      }
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
+    .nutrition-sec-{{ section.id }} .nutrition-bowl-wrap {
+      animation: nutritionFloatCenter {{ float_dur_bowl }} ease-in-out infinite;
+    }
+
+    .nutrition-sec-{{ section.id }} .anim-item-1 .nutrition-badge-wrap {
+      animation: nutritionBadgePulse {{ float_dur_badge }} ease-in-out 0.2s infinite;
+    }
+    .nutrition-sec-{{ section.id }} .anim-item-2 .nutrition-badge-wrap {
+      animation: nutritionBadgePulse {{ float_dur_badge }} ease-in-out 0.8s infinite;
+    }
+    .nutrition-sec-{{ section.id }} .anim-item-3 .nutrition-badge-wrap {
+      animation: nutritionBadgePulse {{ float_dur_badge }} ease-in-out 1.4s infinite;
+    }
+    .nutrition-sec-{{ section.id }} .anim-item-4 .nutrition-badge-wrap {
+      animation: nutritionBadgePulse {{ float_dur_badge }} ease-in-out 2.0s infinite;
+    }
+  {% endif %}
+
+  /* Responsive Mobile Layout */
+  @media screen and (max-width: 989px) {
+    .nutrition-sec-{{ section.id }} .nutrition-stage {
+      grid-template-columns: 1fr;
+      gap: 36px;
+    }
+
+    .nutrition-sec-{{ section.id }} .nutrition-center {
+      order: 1;
+    }
+
+    .nutrition-sec-{{ section.id }} .nutrition-col--left {
+      order: 2;
+    }
+
+    .nutrition-sec-{{ section.id }} .nutrition-col--right {
+      order: 3;
+    }
+
+    .nutrition-sec-{{ section.id }} .nutrition-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      text-align: center !important;
+      align-items: center !important;
+    }
+
+    .nutrition-sec-{{ section.id }} .nutrition-feature {
+      max-width: 100%;
+    }
+
+    .nutrition-sec-{{ section.id }} .nutrition-bowl-wrap {
+      width: {{ section.settings.bowl_size_mobile | default: 260 }}px;
+      height: {{ section.settings.bowl_size_mobile | default: 260 }}px;
+    }
+
+    .nutrition-sec-{{ section.id }} .nutrition-heading {
+      font-size: {{ section.settings.heading_size | times: 0.8 | round }}px;
+    }
+  }
+
+  @media screen and (max-width: 549px) {
+    .nutrition-sec-{{ section.id }} .nutrition-col {
+      grid-template-columns: 1fr;
+      gap: 28px;
+    }
+  }
+</style>
+
+<!-- SVG Organic Blob Mask Definition (5-Petal Flower Blob) -->
+<svg width="0" height="0" style="position: absolute; pointer-events: none;">
+  <defs>
+    <clipPath id="blobClip-{{ section.id }}" clipPathUnits="objectBoundingBox">
+      <path d="M 0.5 0.04 C 0.62 0.04, 0.66 0.16, 0.76 0.18 C 0.86 0.20, 0.95 0.26, 0.96 0.36 C 0.97 0.46, 0.90 0.56, 0.88 0.66 C 0.86 0.76, 0.90 0.86, 0.82 0.92 C 0.74 0.98, 0.62 0.92, 0.52 0.95 C 0.42 0.98, 0.32 1.00, 0.24 0.94 C 0.16 0.88, 0.20 0.76, 0.16 0.66 C 0.12 0.56, 0.02 0.48, 0.04 0.38 C 0.06 0.28, 0.16 0.22, 0.24 0.16 C 0.32 0.10, 0.38 0.04, 0.5 0.04 Z"></path>
+    </clipPath>
+  </defs>
+</svg>
+
+<div
+  class="nutrition-sec-{{ section.id }} {% unless section.settings.enable_animation %}is-visible{% endunless %}"
+  id="NutritionShowcase-{{ section.id }}"
+  style="{{ section_bg_css | strip }}"
+>
+  <div class="nutrition-bg-layer" aria-hidden="true"></div>
+
+  <div class="nutrition-container">
+    {% if section.settings.heading != blank or section.settings.subheading != blank %}
+      <div class="nutrition-header anim-target anim-delay-0">
+        {% if section.settings.heading != blank %}
+          <h2 class="nutrition-heading">{{ section.settings.heading }}</h2>
+        {% endif %}
+        {% if section.settings.subheading != blank %}
+          <p class="nutrition-subheading">{{ section.settings.subheading }}</p>
+        {% endif %}
+      </div>
+    {% endif %}
+
+    <div class="nutrition-stage">
+      <!-- Left Column (Items 1 & 2) -->
+      <div class="nutrition-col nutrition-col--left">
+        <!-- Item 1: Top-Left (e.g. Omega-3s) -->
+        <div class="nutrition-feature anim-target anim-left anim-item-1 anim-delay-1">
+          <div class="nutrition-badge-wrap">
+            <div class="nutrition-badge">
+              {% if section.settings.feat_1_image != blank %}
+                {{
+                  section.settings.feat_1_image
+                  | image_url: width: 240
+                  | image_tag:
+                    class: 'nutrition-badge__img',
+                    loading: 'lazy',
+                    widths: '120, 180, 240',
+                    alt: section.settings.feat_1_title | default: 'Ingredient'
+                }}
+              {% else %}
+                <!-- Fallback High Quality Salmon & Seeds SVG Illustration -->
+                <svg class="nutrition-badge__svg" viewBox="0 0 100 100" fill="none">
+                  <rect width="100" height="100" fill="#fcece5"/>
+                  <path d="M25 45 C20 30, 45 20, 65 30 C80 38, 85 55, 75 70 C65 82, 45 85, 30 75 Z" fill="#f97316" opacity="0.85"/>
+                  <path d="M35 40 C45 35, 60 40, 70 48" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M40 52 C50 48, 62 52, 68 60" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                  <circle cx="32" cy="62" r="5" fill="#d97706"/>
+                  <circle cx="45" cy="72" r="4" fill="#92400e"/>
+                  <circle cx="62" cy="75" r="4.5" fill="#d97706"/>
+                  <circle cx="28" cy="40" r="3" fill="#15803d"/>
+                  <circle cx="75" cy="35" r="3.5" fill="#15803d"/>
+                </svg>
+              {% endif %}
+            </div>
+          </div>
+          {% if section.settings.feat_1_title != blank %}
+            <h3 class="nutrition-feature__title">{{ section.settings.feat_1_title }}</h3>
+          {% endif %}
+          {% if section.settings.feat_1_text != blank %}
+            <p class="nutrition-feature__text">{{ section.settings.feat_1_text }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Item 2: Bottom-Left (e.g. Powerful Superfoods) -->
+        <div class="nutrition-feature anim-target anim-left anim-item-2 anim-delay-2">
+          <div class="nutrition-badge-wrap">
+            <div class="nutrition-badge">
+              {% if section.settings.feat_2_image != blank %}
+                {{
+                  section.settings.feat_2_image
+                  | image_url: width: 240
+                  | image_tag:
+                    class: 'nutrition-badge__img',
+                    loading: 'lazy',
+                    widths: '120, 180, 240',
+                    alt: section.settings.feat_2_title | default: 'Ingredient'
+                }}
+              {% else %}
+                <!-- Fallback High Quality Superfoods / Nuts & Berries SVG Illustration -->
+                <svg class="nutrition-badge__svg" viewBox="0 0 100 100" fill="none">
+                  <rect width="100" height="100" fill="#fef2f2"/>
+                  <ellipse cx="40" cy="45" rx="14" ry="18" transform="rotate(-20 40 45)" fill="#dc2626" opacity="0.8"/>
+                  <ellipse cx="65" cy="50" rx="12" ry="16" transform="rotate(25 65 50)" fill="#b45309" opacity="0.85"/>
+                  <circle cx="48" cy="70" r="8" fill="#4338ca"/>
+                  <circle cx="32" cy="72" r="6.5" fill="#6366f1"/>
+                  <circle cx="62" cy="68" r="7" fill="#312e81"/>
+                  <path d="M48 25 C45 15, 60 18, 55 28" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+              {% endif %}
+            </div>
+          </div>
+          {% if section.settings.feat_2_title != blank %}
+            <h3 class="nutrition-feature__title">{{ section.settings.feat_2_title }}</h3>
+          {% endif %}
+          {% if section.settings.feat_2_text != blank %}
+            <p class="nutrition-feature__text">{{ section.settings.feat_2_text }}</p>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Center Column: Hero Bowl -->
+      <div class="nutrition-center anim-target anim-center anim-delay-0">
+        <div class="nutrition-bowl-wrap">
+          <div class="nutrition-bowl-inner">
+            {% if section.settings.center_image != blank %}
+              {{
+                section.settings.center_image
+                | image_url: width: 800
+                | image_tag:
+                  class: 'nutrition-bowl__img',
+                  loading: 'lazy',
+                  widths: '380, 550, 800',
+                  alt: section.settings.heading | default: 'Nutrition Bowl'
+              }}
+            {% else %}
+              <!-- Fallback Photorealistic / Detailed Food Bowl SVG Illustration -->
+              <svg class="nutrition-bowl__svg" viewBox="0 0 400 400" fill="none">
+                <!-- Outer Ceramic Bowl Rim -->
+                <circle cx="200" cy="200" r="190" fill="#f7f2ea" stroke="#ebe1d3" stroke-width="6"/>
+                <circle cx="200" cy="200" r="172" fill="#ece1d1"/>
+                <circle cx="200" cy="200" r="162" fill="#dfcfbb"/>
+                <circle cx="200" cy="200" r="154" fill="#a46d38"/>
+                
+                <!-- Kibble Texture Pattern Background -->
+                <g fill="#c98a4b">
+                  <!-- Layer 1: Core Kibble Morsels -->
+                  <circle cx="200" cy="200" r="14" fill="#b97736"/>
+                  <circle cx="175" cy="185" r="13" fill="#d99b58"/>
+                  <circle cx="225" cy="185" r="14" fill="#a86829"/>
+                  <circle cx="195" cy="165" r="12.5" fill="#d2914c"/>
+                  <circle cx="215" cy="225" r="13" fill="#c48443"/>
+                  <circle cx="170" cy="220" r="14" fill="#a36528"/>
+                  <circle cx="195" cy="240" r="12" fill="#d99b58"/>
+                  
+                  <!-- Layer 2: Middle Ring Kibble -->
+                  <circle cx="140" cy="180" r="13" fill="#c78746"/>
+                  <circle cx="145" cy="215" r="12.5" fill="#b37233"/>
+                  <circle cx="160" cy="150" r="13.5" fill="#d99b58"/>
+                  <circle cx="190" cy="130" r="12" fill="#a36528"/>
+                  <circle cx="225" cy="135" r="13" fill="#c98a4b"/>
+                  <circle cx="255" cy="160" r="14" fill="#b77535"/>
+                  <circle cx="265" cy="195" r="13" fill="#d99b58"/>
+                  <circle cx="250" cy="230" r="12.5" fill="#a5672a"/>
+                  <circle cx="230" cy="260" r="13.5" fill="#c78746"/>
+                  <circle cx="190" cy="275" r="13" fill="#b37233"/>
+                  <circle cx="155" cy="255" r="12" fill="#d99b58"/>
+                  <circle cx="130" cy="245" r="13" fill="#a36528"/>
+                  
+                  <!-- Layer 3: Outer Ring Kibble -->
+                  <circle cx="110" cy="170" r="12.5" fill="#d2914c"/>
+                  <circle cx="115" cy="205" r="13" fill="#b97736"/>
+                  <circle cx="125" cy="135" r="12" fill="#a86829"/>
+                  <circle cx="150" cy="110" r="13" fill="#d99b58"/>
+                  <circle cx="185" cy="95" r="12.5" fill="#c48443"/>
+                  <circle cx="225" cy="100" r="13" fill="#b37233"/>
+                  <circle cx="260" cy="115" r="12" fill="#d99b58"/>
+                  <circle cx="290" cy="145" r="13.5" fill="#a36528"/>
+                  <circle cx="300" cy="180" r="12.5" fill="#c78746"/>
+                  <circle cx="295" cy="220" r="13" fill="#b77535"/>
+                  <circle cx="275" cy="255" r="12.5" fill="#d99b58"/>
+                  <circle cx="250" cy="285" r="13" fill="#a5672a"/>
+                  <circle cx="215" cy="305" r="12" fill="#c98a4b"/>
+                  <circle cx="175" cy="310" r="13.5" fill="#b97736"/>
+                  <circle cx="140" cy="295" r="12.5" fill="#d99b58"/>
+                  <circle cx="110" cy="270" r="13" fill="#a36528"/>
+                  <circle cx="95" cy="235" r="12" fill="#c48443"/>
+                  <circle cx="90" cy="195" r="13" fill="#b37233"/>
+                </g>
+                
+                <!-- Inner Bowl Shading / Depth Highlights -->
+                <circle cx="200" cy="200" r="154" stroke="rgba(0,0,0,0.12)" stroke-width="8" fill="none"/>
+                <ellipse cx="200" cy="115" rx="90" ry="16" fill="rgba(255,255,255,0.22)"/>
+              </svg>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Column (Items 3 & 4) -->
+      <div class="nutrition-col nutrition-col--right">
+        <!-- Item 3: Top-Right (e.g. High Quality Proteins) -->
+        <div class="nutrition-feature anim-target anim-right anim-item-3 anim-delay-3">
+          <div class="nutrition-badge-wrap">
+            <div class="nutrition-badge">
+              {% if section.settings.feat_3_image != blank %}
+                {{
+                  section.settings.feat_3_image
+                  | image_url: width: 240
+                  | image_tag:
+                    class: 'nutrition-badge__img',
+                    loading: 'lazy',
+                    widths: '120, 180, 240',
+                    alt: section.settings.feat_3_title | default: 'Ingredient'
+                }}
+              {% else %}
+                <!-- Fallback High Quality Fresh Meat / Avocado SVG Illustration -->
+                <svg class="nutrition-badge__svg" viewBox="0 0 100 100" fill="none">
+                  <rect width="100" height="100" fill="#fef2f2"/>
+                  <path d="M30 35 C20 45, 25 70, 45 75 C60 78, 80 65, 75 45 C70 30, 45 25, 30 35 Z" fill="#ef4444" opacity="0.85"/>
+                  <circle cx="68" cy="38" r="14" fill="#15803d" opacity="0.9"/>
+                  <circle cx="68" cy="38" r="7" fill="#eab308"/>
+                  <circle cx="68" cy="38" r="4" fill="#713f12"/>
+                  <path d="M38 48 C45 42, 55 46, 60 55" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+              {% endif %}
+            </div>
+          </div>
+          {% if section.settings.feat_3_title != blank %}
+            <h3 class="nutrition-feature__title">{{ section.settings.feat_3_title }}</h3>
+          {% endif %}
+          {% if section.settings.feat_3_text != blank %}
+            <p class="nutrition-feature__text">{{ section.settings.feat_3_text }}</p>
+          {% endif %}
+        </div>
+
+        <!-- Item 4: Bottom-Right (e.g. Probiotics for Digestion) -->
+        <div class="nutrition-feature anim-target anim-right anim-item-4 anim-delay-4">
+          <div class="nutrition-badge-wrap">
+            <div class="nutrition-badge">
+              {% if section.settings.feat_4_image != blank %}
+                {{
+                  section.settings.feat_4_image
+                  | image_url: width: 240
+                  | image_tag:
+                    class: 'nutrition-badge__img',
+                    loading: 'lazy',
+                    widths: '120, 180, 240',
+                    alt: section.settings.feat_4_title | default: 'Ingredient'
+                }}
+              {% else %}
+                <!-- Fallback High Quality Fresh Greens / Leaves SVG Illustration -->
+                <svg class="nutrition-badge__svg" viewBox="0 0 100 100" fill="none">
+                  <rect width="100" height="100" fill="#f0fdf4"/>
+                  <path d="M50 80 C30 75, 25 50, 40 30 C55 12, 75 25, 78 45 C82 68, 65 82, 50 80 Z" fill="#22c55e" opacity="0.85"/>
+                  <path d="M42 35 C48 50, 52 65, 50 80" stroke="#15803d" stroke-width="2.5" stroke-linecap="round"/>
+                  <path d="M46 52 C55 48, 62 50, 68 55" stroke="#15803d" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M44 64 C35 60, 32 62, 28 66" stroke="#15803d" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              {% endif %}
+            </div>
+          </div>
+          {% if section.settings.feat_4_title != blank %}
+            <h3 class="nutrition-feature__title">{{ section.settings.feat_4_title }}</h3>
+          {% endif %}
+          {% if section.settings.feat_4_text != blank %}
+            <p class="nutrition-feature__text">{{ section.settings.feat_4_text }}</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    function initNutritionObserver() {
+      const section = document.getElementById('NutritionShowcase-{{ section.id }}');
+      if (!section) return;
+
+      {% unless section.settings.enable_animation %}
+        section.classList.add('is-visible');
+        return;
+      {% endunless %}
+
+      if (!('IntersectionObserver' in window)) {
+        section.classList.add('is-visible');
+        return;
+      }
+
+      const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            section.classList.add('is-visible');
+            obs.unobserve(section);
+          }
+        });
+      }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -30px 0px'
+      });
+
+      observer.observe(section);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initNutritionObserver);
+    } else {
+      initNutritionObserver();
+    }
+
+    document.addEventListener('shopify:section:load', function(e) {
+      if (e.target && e.target.querySelector('#NutritionShowcase-{{ section.id }}')) {
+        initNutritionObserver();
+      }
+    });
+
+    document.addEventListener('shopify:section:select', function(e) {
+      const sec = document.getElementById('NutritionShowcase-{{ section.id }}');
+      if (sec) {
+        sec.classList.remove('is-visible');
+        setTimeout(() => sec.classList.add('is-visible'), 50);
+      }
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Whole Nutrition Showcase",
+  "tag": "section",
+  "class": "section-whole-nutrition-showcase",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section Heading & Subheading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading Text",
+      "default": "WHOLE NUTRITION IN EVERY BITE"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 20,
+      "max": 52,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading Font Size",
+      "default": 32
+    },
+    {
+      "type": "select",
+      "id": "heading_weight",
+      "label": "Heading Font Weight",
+      "options": [
+        { "value": "600", "label": "Semi-Bold" },
+        { "value": "700", "label": "Bold" },
+        { "value": "800", "label": "Extra Bold" },
+        { "value": "900", "label": "Black" }
+      ],
+      "default": "800"
+    },
+    {
+      "type": "select",
+      "id": "heading_transform",
+      "label": "Heading Text Transform",
+      "options": [
+        { "value": "none", "label": "Normal (As Typed)" },
+        { "value": "capitalize", "label": "Capitalize Each Word" },
+        { "value": "uppercase", "label": "UPPERCASE" }
+      ],
+      "default": "uppercase"
+    },
+    {
+      "type": "range",
+      "id": "heading_letter_spacing",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "label": "Heading Letter Spacing",
+      "default": 1
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#6d4327"
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Heading Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading Text"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "min": 12,
+      "max": 22,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading Font Size",
+      "default": 15
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading Color",
+      "default": "#7a6455"
+    },
+    {
+      "type": "range",
+      "id": "heading_spacing",
+      "min": 16,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Heading Bottom Spacing",
+      "default": 48
+    },
+    {
+      "type": "header",
+      "content": "Animation & Motion Controls"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_animation",
+      "label": "Enable Entrance Animation",
+      "default": true,
+      "info": "Smoothly animates elements into view when scrolled to."
+    },
+    {
+      "type": "select",
+      "id": "anim_type",
+      "label": "Entrance Animation Style",
+      "options": [
+        { "value": "fade_up", "label": "Smooth Fade Up" },
+        { "value": "zoom_in", "label": "Scale & Zoom In" },
+        { "value": "slide_sides", "label": "Slide In From Sides" },
+        { "value": "radial_orbit", "label": "Radial Orbit Expand" },
+        { "value": "fade_grow", "label": "Soft Scale & Fade Grow" }
+      ],
+      "default": "fade_up"
+    },
+    {
+      "type": "range",
+      "id": "anim_duration",
+      "min": 0.3,
+      "max": 2.5,
+      "step": 0.1,
+      "unit": "s",
+      "label": "Animation Duration",
+      "default": 0.8
+    },
+    {
+      "type": "select",
+      "id": "anim_curve",
+      "label": "Animation Easing / Curve",
+      "options": [
+        { "value": "smooth", "label": "Ultra Smooth (Default)" },
+        { "value": "spring", "label": "Subtle Spring / Elastic" },
+        { "value": "bouncy", "label": "Playful Bounce" },
+        { "value": "gentle", "label": "Gentle Ease" },
+        { "value": "ease_out", "label": "Quick Ease-Out" }
+      ],
+      "default": "smooth"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_float",
+      "label": "Enable Continuous Floating Motion",
+      "default": true,
+      "info": "Adds a gentle breathing floating motion to the center bowl and badges."
+    },
+    {
+      "type": "select",
+      "id": "float_speed",
+      "label": "Floating Motion Pace",
+      "options": [
+        { "value": "slow", "label": "Slow & Calm (8.5s)" },
+        { "value": "normal", "label": "Smooth & Natural (6s)" },
+        { "value": "fast", "label": "Lively Floating (4s)" }
+      ],
+      "default": "normal"
+    },
+    {
+      "type": "header",
+      "content": "Centerpiece Hero Bowl Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "center_image",
+      "label": "Center Hero Bowl Image",
+      "info": "Upload a top-down food bowl, product dish, or hero image."
+    },
+    {
+      "type": "range",
+      "id": "bowl_size_desktop",
+      "min": 240,
+      "max": 540,
+      "step": 10,
+      "unit": "px",
+      "label": "Bowl Diameter (Desktop)",
+      "default": 380
+    },
+    {
+      "type": "range",
+      "id": "bowl_size_mobile",
+      "min": 180,
+      "max": 340,
+      "step": 10,
+      "unit": "px",
+      "label": "Bowl Diameter (Mobile)",
+      "default": 260
+    },
+    {
+      "type": "header",
+      "content": "Feature 1: Top-Left"
+    },
+    {
+      "type": "image_picker",
+      "id": "feat_1_image",
+      "label": "Feature 1 Badge Image"
+    },
+    {
+      "type": "text",
+      "id": "feat_1_title",
+      "label": "Feature 1 Title",
+      "default": "Omega-3s"
+    },
+    {
+      "type": "textarea",
+      "id": "feat_1_text",
+      "label": "Feature 1 Description",
+      "default": "Essential fatty acids from salmon and flaxseed help maintain healthy skin and a shiny coat."
+    },
+    {
+      "type": "header",
+      "content": "Feature 2: Bottom-Left"
+    },
+    {
+      "type": "image_picker",
+      "id": "feat_2_image",
+      "label": "Feature 2 Badge Image"
+    },
+    {
+      "type": "text",
+      "id": "feat_2_title",
+      "label": "Feature 2 Title",
+      "default": "Powerful Superfoods"
+    },
+    {
+      "type": "textarea",
+      "id": "feat_2_text",
+      "label": "Feature 2 Description",
+      "default": "Nutrient-rich ingredients like blueberries and spinach deliver natural antioxidants for overall health."
+    },
+    {
+      "type": "header",
+      "content": "Feature 3: Top-Right"
+    },
+    {
+      "type": "image_picker",
+      "id": "feat_3_image",
+      "label": "Feature 3 Badge Image"
+    },
+    {
+      "type": "text",
+      "id": "feat_3_title",
+      "label": "Feature 3 Title",
+      "default": "High Quality Proteins"
+    },
+    {
+      "type": "textarea",
+      "id": "feat_3_text",
+      "label": "Feature 3 Description",
+      "default": "Grass-fed beef and Atlantic salmon provide lean protein to support strong muscles."
+    },
+    {
+      "type": "header",
+      "content": "Feature 4: Bottom-Right"
+    },
+    {
+      "type": "image_picker",
+      "id": "feat_4_image",
+      "label": "Feature 4 Badge Image"
+    },
+    {
+      "type": "text",
+      "id": "feat_4_title",
+      "label": "Feature 4 Title",
+      "default": "Probiotics for Digestion"
+    },
+    {
+      "type": "textarea",
+      "id": "feat_4_text",
+      "label": "Feature 4 Description",
+      "default": "Quality proteins like Grass-Fed Beef and Atlantic Salmon support lean muscle growth."
+    },
+    {
+      "type": "header",
+      "content": "Feature Badge & Card Styling"
+    },
+    {
+      "type": "range",
+      "id": "badge_size",
+      "min": 50,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "label": "Badge Diameter",
+      "default": 80
+    },
+    {
+      "type": "range",
+      "id": "badge_spacing",
+      "min": 8,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Badge Bottom Spacing",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "stage_gap",
+      "min": 20,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "label": "Gap Around Center Bowl",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "feature_vertical_gap",
+      "min": 24,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "label": "Vertical Spacing Between Items",
+      "default": 56
+    },
+    {
+      "type": "select",
+      "id": "text_align_left",
+      "label": "Left Column Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "text_align_right",
+      "label": "Right Column Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "Feature Typography & Colors"
+    },
+    {
+      "type": "range",
+      "id": "feature_title_size",
+      "min": 14,
+      "max": 26,
+      "step": 1,
+      "unit": "px",
+      "label": "Title Font Size",
+      "default": 18
+    },
+    {
+      "type": "select",
+      "id": "feature_title_weight",
+      "label": "Title Font Weight",
+      "options": [
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi-Bold" },
+        { "value": "700", "label": "Bold" },
+        { "value": "800", "label": "Extra Bold" }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "select",
+      "id": "feature_title_transform",
+      "label": "Title Text Transform",
+      "options": [
+        { "value": "none", "label": "Normal (As Typed)" },
+        { "value": "capitalize", "label": "Capitalize Each Word" },
+        { "value": "uppercase", "label": "UPPERCASE" }
+      ],
+      "default": "capitalize"
+    },
+    {
+      "type": "range",
+      "id": "feature_title_spacing",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "label": "Title Letter Spacing",
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "feature_title_color",
+      "label": "Title Text Color",
+      "default": "#5c3a21"
+    },
+    {
+      "type": "color",
+      "id": "feature_title_hover_color",
+      "label": "Title Hover Color",
+      "default": "#2b1b10"
+    },
+    {
+      "type": "range",
+      "id": "feature_text_size",
+      "min": 11,
+      "max": 18,
+      "step": 1,
+      "unit": "px",
+      "label": "Body Description Font Size",
+      "default": 13
+    },
+    {
+      "type": "color",
+      "id": "feature_text_color",
+      "label": "Body Description Color",
+      "default": "#7a6455"
+    },
+    {
+      "type": "header",
+      "content": "Background Styling"
+    },
+    {
+      "type": "select",
+      "id": "bg_type",
+      "label": "Background Type",
+      "options": [
+        { "value": "solid", "label": "Solid Color" },
+        { "value": "gradient", "label": "Linear Gradient" },
+        { "value": "preset", "label": "Designer Preset" },
+        { "value": "transparent", "label": "Transparent" }
+      ],
+      "default": "solid"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background / Start Color",
+      "default": "#faf7f2",
+      "info": "Used for Solid Color, or Start Color for Gradient."
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_end",
+      "label": "Gradient End Color",
+      "default": "#ffffff",
+      "info": "Used when 'Linear Gradient' is selected."
+    },
+    {
+      "type": "select",
+      "id": "gradient_direction",
+      "label": "Gradient Direction",
+      "options": [
+        { "value": "to bottom", "label": "Top to Bottom (↓)" },
+        { "value": "to right", "label": "Left to Right (→)" },
+        { "value": "135deg", "label": "Diagonal (↘)" },
+        { "value": "to top", "label": "Bottom to Top (↑)" }
+      ],
+      "default": "to bottom",
+      "info": "Used when 'Linear Gradient' is selected."
+    },
+    {
+      "type": "select",
+      "id": "preset_gradient",
+      "label": "Preset Designer Gradients",
+      "options": [
+        { "value": "warm_sand", "label": "Warm Sand Fade" },
+        { "value": "apothecary_cream", "label": "Apothecary Cream" },
+        { "value": "sunset_glow", "label": "Sunset Glow" },
+        { "value": "pearl_white", "label": "Pearl White Soft" },
+        { "value": "espresso_dark", "label": "Rich Espresso (Dark)" }
+      ],
+      "default": "warm_sand",
+      "info": "Used when 'Designer Preset' is selected."
+    },
+    {
+      "type": "range",
+      "id": "bg_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Background Opacity (%)",
+      "default": 100
+    },
+    {
+      "type": "select",
+      "id": "bg_blend_mode",
+      "label": "Background Blend Mode",
+      "options": [
+        { "value": "normal", "label": "Normal (Default)" },
+        { "value": "multiply", "label": "Multiply" },
+        { "value": "screen", "label": "Screen" },
+        { "value": "overlay", "label": "Overlay" },
+        { "value": "soft-light", "label": "Soft Light" }
+      ],
+      "default": "normal"
+    },
+    {
+      "type": "header",
+      "content": "Container Width & Section Spacing"
+    },
+    {
+      "type": "range",
+      "id": "container_width",
+      "min": 800,
+      "max": 1400,
+      "step": 50,
+      "unit": "px",
+      "label": "Container Max Width",
+      "default": 1200
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 20,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 20,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 60
+    }
+  ],
+  "presets": [
+    {
+      "name": "Whole Nutrition Showcase",
+      "settings": {
+        "heading": "WHOLE NUTRITION IN EVERY BITE",
+        "bg_type": "solid",
+        "bg_color": "#faf7f2",
+        "feat_1_title": "Omega-3s",
+        "feat_1_text": "Essential fatty acids from salmon and flaxseed help maintain healthy skin and a shiny coat.",
+        "feat_2_title": "Powerful Superfoods",
+        "feat_2_text": "Nutrient-rich ingredients like blueberries and spinach deliver natural antioxidants for overall health.",
+        "feat_3_title": "High Quality Proteins",
+        "feat_3_text": "Grass-fed beef and Atlantic salmon provide lean protein to support strong muscles.",
+        "feat_4_title": "Probiotics for Digestion",
+        "feat_4_text": "Quality proteins like Grass-Fed Beef and Atlantic Salmon support lean muscle growth.",
+        "enable_animation": true,
+        "anim_type": "fade_up",
+        "anim_duration": 0.8,
+        "enable_float": true
+      }
+    }
+  ]
+}
+{% endschema %}

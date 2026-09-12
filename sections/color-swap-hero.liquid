@@ -1,7 +1,13 @@
 <section
   class="color-hero"
   id="color-hero-{{ section.id }}"
+  data-autoplay="{{ section.settings.autoplay }}"
+  data-autoplay-speed="{{ section.settings.autoplay_speed | default: 5 | times: 1000 }}"
+  data-pause-on-hover="{{ section.settings.pause_on_hover }}"
   style="
+    --color-hero-text: {{ section.settings.text_color | default: '#17181a' }};
+    --hero-btn-bg: {{ section.settings.button_bg_color | default: '#14151a' }};
+    --hero-btn-text: {{ section.settings.button_text_color | default: '#ffffff' }};
     --hero-heading-size: {{ section.settings.heading_size | default: 42 }}px;
     --hero-description-size: {{ section.settings.description_size | default: 15 }}px;
     --hero-caption-size: {{ section.settings.caption_size | default: 14 }}px;
@@ -12,17 +18,36 @@
 >
   <div class="color-hero__bg">
     {% for block in section.blocks %}
-      {% assign bg = block.settings.bg_color %}
-      {% if bg == blank or bg == 'rgba(0,0,0,0)' %}
-        {% assign bg = '#e4c9a3' %}
+      {% assign bg_color = block.settings.bg_color %}
+      {% if bg_color == blank or bg_color == 'rgba(0,0,0,0)' %}
+        {% assign bg_color = '#e4c9a3' %}
       {% endif %}
       <div
         class="color-hero__bg-layer js-bg-layer{% if forloop.first %} is-active{% endif %}"
         data-index="{{ forloop.index0 }}"
         data-block-id="{{ block.id }}"
-        style="background-color: {{ bg }};"
+        style="background-color: {{ bg_color }};"
         {{ block.shopify_attributes }}
-      ></div>
+      >
+        {% if block.settings.bg_image != blank %}
+          <img
+            src="{{ block.settings.bg_image | image_url: width: 2400 }}"
+            srcset="
+              {{ block.settings.bg_image | image_url: width: 750 }} 750w,
+              {{ block.settings.bg_image | image_url: width: 1100 }} 1100w,
+              {{ block.settings.bg_image | image_url: width: 1500 }} 1500w,
+              {{ block.settings.bg_image | image_url: width: 2000 }} 2000w,
+              {{ block.settings.bg_image | image_url: width: 2400 }} 2400w
+            "
+            sizes="100vw"
+            alt="{{ block.settings.label | default: 'Hero Background' | escape }}"
+            class="color-hero__bg-img"
+            loading="lazy"
+            width="{{ block.settings.bg_image.width }}"
+            height="{{ block.settings.bg_image.height }}"
+          >
+        {% endif %}
+      </div>
     {% endfor %}
     <div class="color-hero__vignette"></div>
   </div>
@@ -163,6 +188,7 @@
     inset: 0;
     z-index: 0;
     pointer-events: none;
+    overflow: hidden;
   }
 
   .color-hero__bg-layer {
@@ -173,11 +199,24 @@
     height: 100%;
     inset: 0;
     opacity: 0;
+    overflow: hidden;
     transition: opacity 0.7s ease;
   }
 
   .color-hero__bg-layer.is-active {
     opacity: 1;
+  }
+
+  .color-hero__bg-img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    pointer-events: none;
+    display: block;
   }
 
   .color-hero__vignette {
@@ -235,16 +274,16 @@
     gap: 0.6rem;
     padding: 0.85rem 1.6rem;
     border-radius: 999px;
-    background: #14151a;
-    color: #ffffff;
+    background: var(--hero-btn-bg, #14151a);
+    color: var(--hero-btn-text, #ffffff);
     font-size: 0.85rem;
     font-weight: 600;
     text-decoration: none;
-    transition: transform 0.25s ease, background 0.25s ease;
+    transition: transform 0.25s ease, filter 0.25s ease, opacity 0.25s ease;
   }
 
   .color-hero__button:hover {
-    background: #2b2d35;
+    filter: brightness(1.2);
     transform: translateX(2px);
   }
 
@@ -432,9 +471,9 @@
   }
 
   .color-hero__size.is-active {
-    background: #14151a;
-    border-color: #14151a;
-    color: #fff;
+    background: var(--hero-btn-bg, #14151a);
+    border-color: var(--hero-btn-bg, #14151a);
+    color: var(--hero-btn-text, #ffffff);
   }
 
   .color-hero__simple-text {
@@ -467,7 +506,7 @@
     align-items: center;
     justify-content: center;
     background: rgba(255, 255, 255, 0.65);
-    color: #17181a;
+    color: var(--color-hero-text, #17181a);
     cursor: pointer;
     transition: background 0.2s ease, transform 0.2s ease;
   }
@@ -636,11 +675,37 @@
       const priceCurrentEl = sectionEl.querySelector('.js-price-current');
       const priceCompareEl = sectionEl.querySelector('.js-price-compare');
 
+      const isAutoplay = sectionEl.dataset.autoplay === 'true';
+      const autoplaySpeed = parseInt(sectionEl.dataset.autoplaySpeed, 10) || 5000;
+      const pauseOnHover = sectionEl.dataset.pauseOnHover === 'true';
+
       const total = products.length;
       if (total === 0) return;
 
       let currentIndex = 0;
       let isAnimating = false;
+      let autoplayTimer = null;
+      let isHovered = false;
+
+      function startAutoplay() {
+        if (!isAutoplay || total <= 1 || isHovered) return;
+        stopAutoplay();
+        autoplayTimer = setInterval(() => {
+          goTo(currentIndex + 1, 'forward');
+        }, autoplaySpeed);
+      }
+
+      function stopAutoplay() {
+        if (autoplayTimer) {
+          clearInterval(autoplayTimer);
+          autoplayTimer = null;
+        }
+      }
+
+      function resetAutoplay() {
+        stopAutoplay();
+        startAutoplay();
+      }
 
       function getProductImgSrc(index) {
         const img = products[index] ? products[index].querySelector('img') : null;
@@ -781,6 +846,7 @@
         currentIndex = normalized;
         updateSlideData(currentIndex);
         updatePreview();
+        resetAutoplay();
       }
 
       function selectBlock(targetIndex) {
@@ -794,6 +860,18 @@
       nextBtn && nextBtn.addEventListener('click', () => goTo(currentIndex + 1, 'forward'));
       swatchPreviewBtn && swatchPreviewBtn.addEventListener('click', () => goTo(currentIndex + 1, 'forward'));
 
+      // Pause on hover
+      if (isAutoplay && pauseOnHover) {
+        sectionEl.addEventListener('mouseenter', () => {
+          isHovered = true;
+          stopAutoplay();
+        });
+        sectionEl.addEventListener('mouseleave', () => {
+          isHovered = false;
+          startAutoplay();
+        });
+      }
+
       // Allow clicking active product image to navigate to link
       products.forEach((p) => {
         p.addEventListener('click', () => {
@@ -805,9 +883,10 @@
         });
       });
 
-      // Shopify Theme Editor: auto-switch slide when a block is clicked in customizer
+      // Shopify Theme Editor events
       document.addEventListener('shopify:block:select', (event) => {
         if (!sectionEl.contains(event.target)) return;
+        stopAutoplay();
         const blockId = event.detail?.blockId || event.target?.dataset?.blockId;
         const index = products.findIndex((p) => p.dataset.blockId === blockId);
         if (index !== -1) {
@@ -815,9 +894,27 @@
         }
       });
 
-      // Initial state
+      document.addEventListener('shopify:block:deselect', (event) => {
+        if (!sectionEl.contains(event.target)) return;
+        startAutoplay();
+      });
+
+      document.addEventListener('shopify:section:select', (event) => {
+        if (event.detail && event.detail.sectionId === '{{ section.id }}') {
+          startAutoplay();
+        }
+      });
+
+      document.addEventListener('shopify:section:deselect', (event) => {
+        if (event.detail && event.detail.sectionId === '{{ section.id }}') {
+          stopAutoplay();
+        }
+      });
+
+      // Initial state & start autoplay
       updateSlideData(currentIndex);
       updatePreview();
+      startAutoplay();
     }
 
     function setup() {
@@ -845,10 +942,58 @@
 
 {% schema %}
 {
-  "name": "Color Swap Hero",
+  "name": "Showcase Hero Slider",
   "tag": "section",
   "class": "section-color-hero",
   "settings": [
+    {
+      "type": "header",
+      "content": "Slider & Autoplay"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Enable auto-slide",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "min": 2,
+      "max": 15,
+      "step": 1,
+      "unit": "s",
+      "label": "Auto-slide duration (seconds)",
+      "default": 5
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_on_hover",
+      "label": "Pause auto-slide on hover",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "Component Colors"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Component text color",
+      "default": "#17181a"
+    },
+    {
+      "type": "color",
+      "id": "button_bg_color",
+      "label": "Button background color",
+      "default": "#14151a"
+    },
+    {
+      "type": "color",
+      "id": "button_text_color",
+      "label": "Button text color",
+      "default": "#ffffff"
+    },
     {
       "type": "header",
       "content": "Typography & Font Sizes"
@@ -917,8 +1062,27 @@
   "blocks": [
     {
       "type": "color_slide",
-      "name": "Item Data",
+      "name": "Product Slide",
       "settings": [
+        {
+          "type": "header",
+          "content": "Slide Background"
+        },
+        {
+          "type": "image_picker",
+          "id": "bg_image",
+          "label": "Background image"
+        },
+        {
+          "type": "color",
+          "id": "bg_color",
+          "label": "Background color fallback",
+          "default": "#e4c9a3"
+        },
+        {
+          "type": "header",
+          "content": "Product & Swatch"
+        },
         {
           "type": "text",
           "id": "label",
@@ -998,7 +1162,7 @@
   ],
   "presets": [
     {
-      "name": "Color Swap Hero",
+      "name": "Product Showcase Hero Slider",
       "blocks": [
         {
           "type": "color_slide",

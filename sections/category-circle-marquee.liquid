@@ -1,0 +1,1398 @@
+{%- comment -%}
+  Category Circle Marquee / Navigation List Section
+  Features:
+  - Strictly single-line circular category items
+  - Seamless infinite auto-sliding showing 3 items at a time
+  - Interactive navigation arrows to slide back and view categories that just passed
+  - Touch swipe & Mouse drag support to freely scroll backwards and forwards
+  - Background styling: Solid, Shopify Gradient Builder, Curated Gradients, Custom CSS, Opacity, Glassmorphism
+{%- endcomment -%}
+
+<style>
+  {%- assign bg_type = section.settings.bg_type | default: 'solid' -%}
+  {%- assign bg_color = section.settings.bg_color | default: '#ffffff' -%}
+  {%- assign bg_color_end = section.settings.gradient_color_end | default: section.settings.gradient_color_3 | default: '#faf7f2' -%}
+  
+  {%- assign raw_dir = section.settings.gradient_direction | default: 'to bottom' -%}
+  {%- case raw_dir -%}
+    {%- when 'to_right', 'to right' -%}
+      {%- assign bg_dir = 'to right' -%}
+    {%- when 'to_top', 'to top' -%}
+      {%- assign bg_dir = 'to top' -%}
+    {%- when 'to_left', 'to left' -%}
+      {%- assign bg_dir = 'to left' -%}
+    {%- when 'diagonal_down', '135deg' -%}
+      {%- assign bg_dir = '135deg' -%}
+    {%- when 'diagonal_up', '45deg' -%}
+      {%- assign bg_dir = '45deg' -%}
+    {%- else -%}
+      {%- assign bg_dir = 'to bottom' -%}
+  {%- endcase -%}
+
+  {%- capture section_bg_css -%}
+    {%- if bg_type == 'solid' -%}
+      background-color: {{ bg_color }} !important;
+    {%- elsif bg_type == 'gradient' or bg_type == 'linear' -%}
+      background: linear-gradient({{ bg_dir }}, {{ bg_color }}, {{ bg_color_end }}) !important;
+    {%- elsif bg_type == 'preset' -%}
+      {%- case section.settings.preset_gradient -%}
+        {%- when 'warm_sand' -%}
+          background: linear-gradient(180deg, #faf7f2 0%, #ffffff 100%) !important;
+        {%- when 'apothecary_cream' -%}
+          background: linear-gradient(135deg, #f5f0eb 0%, #e8ded4 100%) !important;
+        {%- when 'sunset_glow' -%}
+          background: linear-gradient(135deg, #fff1eb 0%, #ace0f9 100%) !important;
+        {%- when 'pearl_white' -%}
+          background: linear-gradient(120deg, #fdfbfb 0%, #ebedee 100%) !important;
+        {%- when 'espresso_dark' -%}
+          background: linear-gradient(135deg, #2b1b10 0%, #170e08 100%) !important;
+        {%- else -%}
+          background: linear-gradient(180deg, #faf7f2 0%, #ffffff 100%) !important;
+      {%- endcase -%}
+    {%- elsif bg_type == 'transparent' -%}
+      background: transparent !important;
+    {%- else -%}
+      background-color: {{ bg_color }} !important;
+    {%- endif -%}
+  {%- endcapture -%}
+
+  .cat-marquee-{{ section.id }} {
+    --cat-circle-size: {{ section.settings.circle_size_desktop | default: 140 }}px;
+    --cat-circle-size-mob: {{ section.settings.circle_size_mobile | default: 90 }}px;
+    --cat-gap: {{ section.settings.gap_desktop | default: 30 }}px;
+    --cat-gap-mob: {{ section.settings.gap_mobile | default: 16 }}px;
+    --cat-items-desktop: {{ section.settings.items_visible_desktop | default: 3 }};
+    --cat-items-mobile: {{ section.settings.items_visible_mobile | default: 3 }};
+    --cat-ring-color: {{ section.settings.ring_color | default: 'transparent' }};
+    --cat-ring-hover-color: {{ section.settings.ring_hover_color | default: '#6d4327' }};
+    --cat-ring-width: {{ section.settings.ring_width | default: 0 }}px;
+    --cat-title-color: {{ section.settings.title_color | default: '#6d4327' }};
+    --cat-title-hover: {{ section.settings.title_hover_color | default: '#2b1b10' }};
+    --cat-speed: {{ section.settings.marquee_speed | default: 18 }}s;
+    padding-top: {{ section.settings.padding_top | default: 40 }}px;
+    padding-bottom: {{ section.settings.padding_bottom | default: 40 }}px;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    user-select: none;
+    -webkit-user-select: none;
+    {{ section_bg_css | strip }}
+  }
+
+  /* Independent Background Layer for Clean Opacity & Gradients */
+  .cat-marquee-{{ section.id }} .cat-marquee__bg-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    {{ section_bg_css | strip }}
+    {% if section.settings.bg_opacity < 100 and section.settings.bg_opacity != blank %}
+      opacity: {{ section.settings.bg_opacity | divided_by: 100.0 }};
+    {% endif %}
+  }
+
+  .cat-marquee-{{ section.id }} .cat-marquee__container {
+    max-width: {{ section.settings.container_width }}px;
+    margin: 0 auto;
+    padding: 0 20px;
+    position: relative;
+    z-index: 1;
+    box-sizing: border-box;
+    width: 100%;
+  }
+
+  /* Header */
+  .cat-marquee-{{ section.id }} .cat-marquee__header-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: {% if section.settings.heading_align == 'center' %}center{% elsif section.settings.heading_align == 'right' %}flex-end{% else %}space-between{% endif %};
+    margin-bottom: {{ section.settings.heading_spacing }}px;
+    position: relative;
+  }
+
+  .cat-marquee-{{ section.id }} .cat-marquee__header {
+    text-align: {{ section.settings.heading_align }};
+    {% if section.settings.heading_align == 'center' %}
+      width: 100%;
+    {% endif %}
+  }
+
+  .cat-marquee-{{ section.id }} .cat-marquee__heading {
+    font-size: {{ section.settings.heading_size }}px;
+    font-weight: 700;
+    color: {{ section.settings.heading_color | default: '#2b1b10' }};
+    margin: 0 0 8px 0;
+    line-height: 1.25;
+  }
+
+  .cat-marquee-{{ section.id }} .cat-marquee__subheading {
+    font-size: {{ section.settings.subheading_size }}px;
+    color: {{ section.settings.subheading_color | default: '#7a6455' }};
+    margin: 0;
+    line-height: 1.5;
+  }
+
+  /* Slider Outer Stage */
+  .cat-marquee-{{ section.id }} .cat-marquee__stage {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Marquee Track Wrapper (Strictly Single Line with Vertical Headroom) */
+  .cat-marquee-{{ section.id }} .cat-marquee__wrapper {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    container-type: inline-size;
+    cursor: grab;
+    padding-top: 24px;
+    padding-bottom: 24px;
+    margin-top: -24px;
+    margin-bottom: -24px;
+  }
+
+  .cat-marquee-{{ section.id }} .cat-marquee__wrapper.is-dragging {
+    cursor: grabbing;
+    user-select: none;
+  }
+
+  {% if section.settings.enable_fade_edges %}
+    .cat-marquee-{{ section.id }} .cat-marquee__wrapper {
+      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 48px, black calc(100% - 48px), transparent 100%);
+      mask-image: linear-gradient(to right, transparent 0%, black 48px, black calc(100% - 48px), transparent 100%);
+    }
+  {% endif %}
+
+  /* Continuous Moving Track */
+  .cat-marquee-{{ section.id }} .cat-marquee__track {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+    align-items: flex-start !important;
+    width: max-content;
+    gap: var(--cat-gap);
+    will-change: transform;
+    touch-action: pan-y;
+    padding-top: 12px;
+    padding-bottom: 8px;
+  }
+
+  /* CSS Animation mode (when not dragging / manual sliding) */
+  .cat-marquee-{{ section.id }}.is-animating .cat-marquee__track {
+    animation: catMarqueeSlide-{{ section.id }} var(--cat-speed) linear infinite;
+    {% if section.settings.marquee_direction == 'right' %}
+      animation-direction: reverse;
+    {% endif %}
+  }
+
+  {% if section.settings.pause_on_hover %}
+    .cat-marquee-{{ section.id }}:hover .cat-marquee__track {
+      animation-play-state: paused;
+    }
+  {% endif %}
+
+  /* Infinite Translation across 1 full set (33.333% when 3 sets) */
+  @keyframes catMarqueeSlide-{{ section.id }} {
+    0% {
+      transform: translate3d(0, 0, 0);
+    }
+    100% {
+      transform: translate3d(calc(-33.333333% - (var(--cat-gap) / 3)), 0, 0);
+    }
+  }
+
+  /* Category Item: single-line calculation showing 3 per screen */
+  .cat-marquee-{{ section.id }} .cat-item {
+    display: inline-flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    text-decoration: none;
+    color: inherit;
+    flex-shrink: 0 !important;
+    box-sizing: border-box;
+    cursor: pointer;
+    transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.4, 1);
+    padding-top: 8px;
+    padding-bottom: 4px;
+    
+    {% if section.settings.calc_mode == 'exact_columns' %}
+      /* Dynamically divide wrapper width so exactly N items (e.g. 3) fit in the viewport */
+      width: calc((100cqw - (var(--cat-gap) * (var(--cat-items-desktop) - 1))) / var(--cat-items-desktop));
+      flex: 0 0 calc((100cqw - (var(--cat-gap) * (var(--cat-items-desktop) - 1))) / var(--cat-items-desktop));
+      max-width: calc((100cqw - (var(--cat-gap) * (var(--cat-items-desktop) - 1))) / var(--cat-items-desktop));
+    {% else %}
+      width: var(--cat-circle-size);
+      flex: 0 0 var(--cat-circle-size);
+    {% endif %}
+  }
+
+  /* Fallback for browsers without container queries */
+  @supports not (width: 1cqw) {
+    .cat-marquee-{{ section.id }} .cat-item {
+      {% if section.settings.calc_mode == 'exact_columns' %}
+        width: calc(({{ section.settings.container_width }}px - 40px - (var(--cat-gap) * (var(--cat-items-desktop) - 1))) / var(--cat-items-desktop));
+        flex: 0 0 calc(({{ section.settings.container_width }}px - 40px - (var(--cat-gap) * (var(--cat-items-desktop) - 1))) / var(--cat-items-desktop));
+      {% endif %}
+    }
+  }
+
+  .cat-marquee-{{ section.id }} .cat-item:hover {
+    transform: translateY(-5px);
+  }
+
+  /* Circle Wrapper */
+  .cat-marquee-{{ section.id }} .cat-item__circle-wrap {
+    position: relative;
+    width: var(--cat-circle-size);
+    height: var(--cat-circle-size);
+    max-width: 90%;
+    aspect-ratio: 1 / 1;
+    border-radius: 50%;
+    padding: {{ section.settings.ring_padding }}px;
+    border: var(--cat-ring-width) solid var(--cat-ring-color);
+    background-color: {{ section.settings.circle_bg | default: '#f4ede6' }};
+    box-shadow: 0 4px 14px rgba(0, 0, 0, {{ section.settings.circle_shadow | divided_by: 100.0 }});
+    transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.4, 1), box-shadow 0.35s ease, border-color 0.35s ease;
+    margin-bottom: {{ section.settings.title_spacing }}px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .cat-marquee-{{ section.id }} .cat-item:hover .cat-item__circle-wrap {
+    border-color: var(--cat-ring-hover-color);
+    box-shadow: 0 10px 28px rgba(0, 0, 0, {{ section.settings.circle_shadow | plus: 8 | divided_by: 100.0 }});
+    transform: scale(1.06);
+  }
+
+  .cat-marquee-{{ section.id }} .cat-item__inner-circle {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: {{ section.settings.circle_bg | default: '#f4ede6' }};
+  }
+
+  .cat-marquee-{{ section.id }} .cat-item__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.4, 1);
+  }
+
+  .cat-marquee-{{ section.id }} .cat-item:hover .cat-item__image {
+    transform: scale(1.1);
+  }
+
+  /* Placeholder SVG */
+  .cat-marquee-{{ section.id }} .cat-item__placeholder {
+    width: 50%;
+    height: 50%;
+    color: #9c8272;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .cat-marquee-{{ section.id }} .cat-item__placeholder svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Badge */
+  .cat-marquee-{{ section.id }} .cat-item__badge {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    background-color: {{ section.settings.badge_bg | default: '#e11d48' }};
+    color: {{ section.settings.badge_color | default: '#ffffff' }};
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 2px 7px;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    z-index: 4;
+    pointer-events: none;
+    line-height: 1.3;
+  }
+
+  /* Title */
+  .cat-marquee-{{ section.id }} .cat-item__title {
+    font-size: {{ section.settings.title_size }}px;
+    font-weight: {{ section.settings.title_weight }};
+    color: var(--cat-title-color);
+    margin: 0;
+    line-height: 1.3;
+    transition: color 0.25s ease;
+    text-transform: {{ section.settings.title_transform }};
+    letter-spacing: {{ section.settings.title_letter_spacing }}px;
+    white-space: normal;
+    text-align: center;
+    max-width: 100%;
+  }
+
+  .cat-marquee-{{ section.id }} .cat-item:hover .cat-item__title {
+    color: var(--cat-title-hover);
+  }
+
+  /* Navigation Arrows */
+  .cat-marquee-{{ section.id }} .cat-nav-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 5;
+    width: {{ section.settings.arrow_size }}px;
+    height: {{ section.settings.arrow_size }}px;
+    border-radius: 50%;
+    background-color: {{ section.settings.arrow_bg | default: '#ffffff' }};
+    color: {{ section.settings.arrow_color | default: '#2b1b10' }};
+    border: 1px solid {{ section.settings.arrow_border | default: 'rgba(0,0,0,0.1)' }};
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.2, 0.8, 0.4, 1);
+    padding: 0;
+    outline: none;
+  }
+
+  .cat-marquee-{{ section.id }} .cat-nav-btn:hover {
+    background-color: {{ section.settings.arrow_hover_bg | default: '#2b1b10' }};
+    color: {{ section.settings.arrow_hover_color | default: '#ffffff' }};
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+    transform: translateY(-50%) scale(1.08);
+  }
+
+  .cat-marquee-{{ section.id }} .cat-nav-btn:active {
+    transform: translateY(-50%) scale(0.96);
+  }
+
+  .cat-marquee-{{ section.id }} .cat-nav-btn svg {
+    width: 18px;
+    height: 18px;
+    stroke-width: 2.5;
+    stroke: currentColor;
+    fill: none;
+  }
+
+  .cat-marquee-{{ section.id }} .cat-nav-btn--prev {
+    left: -{{ section.settings.arrow_size | divided_by: 2 }}px;
+  }
+
+  .cat-marquee-{{ section.id }} .cat-nav-btn--next {
+    right: -{{ section.settings.arrow_size | divided_by: 2 }}px;
+  }
+
+  /* Mobile Responsive */
+  @media screen and (max-width: 749px) {
+    .cat-marquee-{{ section.id }} .cat-marquee__track {
+      gap: var(--cat-gap-mob);
+    }
+    
+    {% if section.settings.calc_mode == 'exact_columns' %}
+      .cat-marquee-{{ section.id }} .cat-item {
+        width: calc((100cqw - (var(--cat-gap-mob) * (var(--cat-items-mobile) - 1))) / var(--cat-items-mobile));
+        flex: 0 0 calc((100cqw - (var(--cat-gap-mob) * (var(--cat-items-mobile) - 1))) / var(--cat-items-mobile));
+        max-width: calc((100cqw - (var(--cat-gap-mob) * (var(--cat-items-mobile) - 1))) / var(--cat-items-mobile));
+      }
+    {% else %}
+      .cat-marquee-{{ section.id }} .cat-item {
+        width: var(--cat-circle-size-mob);
+        flex: 0 0 var(--cat-circle-size-mob);
+      }
+    {% endif %}
+
+    .cat-marquee-{{ section.id }} .cat-item__circle-wrap {
+      width: var(--cat-circle-size-mob);
+      height: var(--cat-circle-size-mob);
+    }
+    .cat-marquee-{{ section.id }} .cat-item__title {
+      font-size: {{ section.settings.title_size | times: 0.9 | round }}px;
+    }
+    .cat-marquee-{{ section.id }} .cat-marquee__heading {
+      font-size: {{ section.settings.heading_size | times: 0.8 | round }}px;
+    }
+    .cat-marquee-{{ section.id }} .cat-nav-btn {
+      display: {% if section.settings.show_arrows_mobile %}flex{% else %}none{% endif %};
+    }
+    .cat-marquee-{{ section.id }} .cat-nav-btn--prev {
+      left: 0px;
+    }
+    .cat-marquee-{{ section.id }} .cat-nav-btn--next {
+      right: 0px;
+    }
+  }
+</style>
+
+<div
+  class="cat-marquee-{{ section.id }} is-animating"
+  id="CatMarquee-{{ section.id }}"
+  style="{{ section_bg_css | strip }}"
+>
+  <div class="cat-marquee__bg-layer" aria-hidden="true"></div>
+  <div class="cat-marquee__container">
+    {% if section.settings.heading != blank or section.settings.subheading != blank %}
+      <div class="cat-marquee__header-wrap">
+        <div class="cat-marquee__header">
+          {% if section.settings.heading != blank %}
+            <h2 class="cat-marquee__heading">{{ section.settings.heading }}</h2>
+          {% endif %}
+          {% if section.settings.subheading != blank %}
+            <p class="cat-marquee__subheading">{{ section.settings.subheading }}</p>
+          {% endif %}
+        </div>
+      </div>
+    {% endif %}
+
+    <div class="cat-marquee__stage">
+      {% if section.settings.enable_arrows %}
+        <button
+          type="button"
+          class="cat-nav-btn cat-nav-btn--prev"
+          aria-label="Slide back to previous categories"
+          data-direction="prev"
+        >
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+      {% endif %}
+
+      <div class="cat-marquee__wrapper" id="TrackWrapper-{{ section.id }}">
+        <div class="cat-marquee__track" id="Track-{{ section.id }}">
+          {%- comment -%} Set 1: Original Category Blocks {%- endcomment -%}
+          {% for block in section.blocks %}
+            {%- assign item_tag = 'div' -%}
+            {%- if block.settings.link != blank -%}
+              {%- assign item_tag = 'a' -%}
+            {%- endif -%}
+
+            <{{ item_tag }}
+              {% if block.settings.link != blank %}href="{{ block.settings.link }}"{% endif %}
+              class="cat-item"
+              {{ block.shopify_attributes }}
+            >
+              <div class="cat-item__circle-wrap">
+                {% if block.settings.badge != blank %}
+                  <span class="cat-item__badge">{{ block.settings.badge }}</span>
+                {% endif %}
+                <div class="cat-item__inner-circle">
+                  {% if block.settings.image != blank %}
+                    {{
+                      block.settings.image
+                      | image_url: width: 360
+                      | image_tag:
+                        class: 'cat-item__image',
+                        loading: 'lazy',
+                        widths: '160, 240, 360',
+                        alt: block.settings.title | default: 'Category'
+                    }}
+                  {% else %}
+                    <div class="cat-item__placeholder">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="m8 14 2.5-2.5a1.41 1.41 0 0 1 2 0L16 15"></path>
+                        <circle cx="9" cy="9" r="1.5"></circle>
+                      </svg>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+              {% if block.settings.title != blank %}
+                <span class="cat-item__title">{{ block.settings.title }}</span>
+              {% endif %}
+            </{{ item_tag }}>
+          {% endfor %}
+
+          {%- comment -%} Set 2: Duplicate for seamless sliding & backwards navigation {%- endcomment -%}
+          {% for block in section.blocks %}
+            {%- assign item_tag = 'div' -%}
+            {%- if block.settings.link != blank -%}
+              {%- assign item_tag = 'a' -%}
+            {%- endif -%}
+
+            <{{ item_tag }}
+              {% if block.settings.link != blank %}href="{{ block.settings.link }}"{% endif %}
+              class="cat-item cat-item--duplicate"
+              aria-hidden="true"
+              tabindex="-1"
+            >
+              <div class="cat-item__circle-wrap">
+                {% if block.settings.badge != blank %}
+                  <span class="cat-item__badge">{{ block.settings.badge }}</span>
+                {% endif %}
+                <div class="cat-item__inner-circle">
+                  {% if block.settings.image != blank %}
+                    {{
+                      block.settings.image
+                      | image_url: width: 360
+                      | image_tag:
+                        class: 'cat-item__image',
+                        loading: 'lazy',
+                        widths: '160, 240, 360',
+                        alt: block.settings.title | default: 'Category'
+                    }}
+                  {% else %}
+                    <div class="cat-item__placeholder">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="m8 14 2.5-2.5a1.41 1.41 0 0 1 2 0L16 15"></path>
+                        <circle cx="9" cy="9" r="1.5"></circle>
+                      </svg>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+              {% if block.settings.title != blank %}
+                <span class="cat-item__title">{{ block.settings.title }}</span>
+              {% endif %}
+            </{{ item_tag }}>
+          {% endfor %}
+
+          {%- comment -%} Set 3: Triplicate for infinite backward dragging buffer {%- endcomment -%}
+          {% for block in section.blocks %}
+            {%- assign item_tag = 'div' -%}
+            {%- if block.settings.link != blank -%}
+              {%- assign item_tag = 'a' -%}
+            {%- endif -%}
+
+            <{{ item_tag }}
+              {% if block.settings.link != blank %}href="{{ block.settings.link }}"{% endif %}
+              class="cat-item cat-item--triplicate"
+              aria-hidden="true"
+              tabindex="-1"
+            >
+              <div class="cat-item__circle-wrap">
+                {% if block.settings.badge != blank %}
+                  <span class="cat-item__badge">{{ block.settings.badge }}</span>
+                {% endif %}
+                <div class="cat-item__inner-circle">
+                  {% if block.settings.image != blank %}
+                    {{
+                      block.settings.image
+                      | image_url: width: 360
+                      | image_tag:
+                        class: 'cat-item__image',
+                        loading: 'lazy',
+                        widths: '160, 240, 360',
+                        alt: block.settings.title | default: 'Category'
+                    }}
+                  {% else %}
+                    <div class="cat-item__placeholder">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="m8 14 2.5-2.5a1.41 1.41 0 0 1 2 0L16 15"></path>
+                        <circle cx="9" cy="9" r="1.5"></circle>
+                      </svg>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+              {% if block.settings.title != blank %}
+                <span class="cat-item__title">{{ block.settings.title }}</span>
+              {% endif %}
+            </{{ item_tag }}>
+          {% endfor %}
+        </div>
+      </div>
+
+      {% if section.settings.enable_arrows %}
+        <button
+          type="button"
+          class="cat-nav-btn cat-nav-btn--next"
+          aria-label="Slide forward to next categories"
+          data-direction="next"
+        >
+          <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<script>
+  (function() {
+    function initSlider() {
+      const sectionEl = document.getElementById('CatMarquee-{{ section.id }}');
+      if (!sectionEl) return;
+
+      const wrapper = sectionEl.querySelector('#TrackWrapper-{{ section.id }}');
+      const track = sectionEl.querySelector('#Track-{{ section.id }}');
+      const prevBtn = sectionEl.querySelector('.cat-nav-btn--prev');
+      const nextBtn = sectionEl.querySelector('.cat-nav-btn--next');
+
+      if (!wrapper || !track) return;
+
+      let isDragging = false;
+      let startX = 0;
+      let currentTranslate = 0;
+      let prevTranslate = 0;
+      let resumeTimeout = null;
+      const isAutoPlay = {{ section.settings.enable_autoplay | default: true }};
+      const autoResumeDelay = 4000;
+
+      function getOneSetWidth() {
+        const items = track.querySelectorAll('.cat-item');
+        const blockCount = {{ section.blocks.size | default: 4 }};
+        if (items.length === 0 || blockCount === 0) return track.scrollWidth / 3;
+        
+        let width = 0;
+        const gap = parseFloat(getComputedStyle(track).gap) || 30;
+        for (let i = 0; i < blockCount; i++) {
+          if (items[i]) {
+            width += items[i].offsetWidth + gap;
+          }
+        }
+        return width || (track.scrollWidth / 3);
+      }
+
+      function getItemStepWidth() {
+        const item = track.querySelector('.cat-item');
+        if (!item) return 200;
+        const gap = parseFloat(getComputedStyle(track).gap) || 30;
+        return item.offsetWidth + gap;
+      }
+
+      function getCurrentComputedTranslateX() {
+        const style = window.getComputedStyle(track);
+        const matrix = new WebKitCSSMatrix(style.transform);
+        return matrix.m41;
+      }
+
+      function pauseCssAnimation() {
+        if (sectionEl.classList.contains('is-animating')) {
+          currentTranslate = getCurrentComputedTranslateX();
+          sectionEl.classList.remove('is-animating');
+          track.style.animation = 'none';
+          track.style.transform = `translate3d(${currentTranslate}px, 0, 0)`;
+        }
+      }
+
+      function normalizeTranslate(tx) {
+        const setWidth = getOneSetWidth();
+        if (setWidth <= 0) return tx;
+        while (tx > 0) {
+          tx -= setWidth;
+        }
+        while (tx < -setWidth * 2) {
+          tx += setWidth;
+        }
+        return tx;
+      }
+
+      function setTrackPosition(tx, smooth = false) {
+        currentTranslate = normalizeTranslate(tx);
+        prevTranslate = currentTranslate;
+        if (smooth) {
+          track.style.transition = 'transform 0.4s cubic-bezier(0.2, 0.8, 0.25, 1)';
+        } else {
+          track.style.transition = 'none';
+        }
+        track.style.transform = `translate3d(${currentTranslate}px, 0, 0)`;
+      }
+
+      function scheduleAutoResume() {
+        if (!isAutoPlay) return;
+        clearTimeout(resumeTimeout);
+        resumeTimeout = setTimeout(() => {
+          track.style.transition = 'none';
+          sectionEl.classList.add('is-animating');
+          track.style.animation = '';
+        }, autoResumeDelay);
+      }
+
+      // Button Controls: Prev (Slide backwards to view passed menus) and Next
+      if (prevBtn) {
+        prevBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          pauseCssAnimation();
+          const step = getItemStepWidth();
+          setTrackPosition(currentTranslate + step, true);
+          scheduleAutoResume();
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          pauseCssAnimation();
+          const step = getItemStepWidth();
+          setTrackPosition(currentTranslate - step, true);
+          scheduleAutoResume();
+        });
+      }
+
+      // Drag / Swipe Gestures
+      {% if section.settings.enable_drag %}
+        let moved = false;
+
+        function touchStart(e) {
+          pauseCssAnimation();
+          isDragging = true;
+          moved = false;
+          startX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+          wrapper.classList.add('is-dragging');
+          track.style.transition = 'none';
+          clearTimeout(resumeTimeout);
+        }
+
+        function touchMove(e) {
+          if (!isDragging) return;
+          const currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+          const diff = currentX - startX;
+          if (Math.abs(diff) > 4) {
+            moved = true;
+          }
+          currentTranslate = normalizeTranslate(prevTranslate + diff);
+          track.style.transform = `translate3d(${currentTranslate}px, 0, 0)`;
+        }
+
+        function touchEnd(e) {
+          if (!isDragging) return;
+          isDragging = false;
+          wrapper.classList.remove('is-dragging');
+          prevTranslate = currentTranslate;
+          
+          if (moved) {
+            const preventClick = function(ev) {
+              ev.preventDefault();
+              ev.stopPropagation();
+              window.removeEventListener('click', preventClick, true);
+            };
+            window.addEventListener('click', preventClick, true);
+          }
+
+          scheduleAutoResume();
+        }
+
+        wrapper.addEventListener('mousedown', touchStart);
+        window.addEventListener('mousemove', touchMove);
+        window.addEventListener('mouseup', touchEnd);
+
+        wrapper.addEventListener('touchstart', touchStart, { passive: true });
+        window.addEventListener('touchmove', touchMove, { passive: true });
+        window.addEventListener('touchend', touchEnd);
+      {% endif %}
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initSlider);
+    } else {
+      initSlider();
+    }
+
+    document.addEventListener('shopify:section:load', function(e) {
+      if (e.target.contains(document.getElementById('CatMarquee-{{ section.id }}'))) {
+        initSlider();
+      }
+    });
+  })();
+</script>
+
+{% schema %}
+{
+  "name": "Category Circle Marquee",
+  "tag": "section",
+  "class": "section-category-circle-marquee",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Single-Line View & Columns"
+    },
+    {
+      "type": "select",
+      "id": "calc_mode",
+      "label": "Items Sizing Mode",
+      "options": [
+        { "value": "exact_columns", "label": "Show Exact Number of Items (e.g. 3 across screen)" },
+        { "value": "fixed_circle", "label": "Use Fixed Circle Diameter" }
+      ],
+      "default": "exact_columns",
+      "info": "Choose 'Show Exact Number of Items' to fit exactly 3 (or configured count) across the screen."
+    },
+    {
+      "type": "range",
+      "id": "items_visible_desktop",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "label": "Items Visible on Screen (Desktop)",
+      "default": 3,
+      "info": "Number of items visible on screen at a time."
+    },
+    {
+      "type": "range",
+      "id": "items_visible_mobile",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "label": "Items Visible on Screen (Mobile)",
+      "default": 3,
+      "info": "Number of items visible on mobile screens."
+    },
+    {
+      "type": "header",
+      "content": "Background Styling"
+    },
+    {
+      "type": "select",
+      "id": "bg_type",
+      "label": "Background Type",
+      "options": [
+        { "value": "solid", "label": "Solid Color" },
+        { "value": "gradient", "label": "Linear Gradient" },
+        { "value": "preset", "label": "Designer Preset" },
+        { "value": "transparent", "label": "Transparent" }
+      ],
+      "default": "solid"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Background / Start Color",
+      "default": "#ffffff",
+      "info": "Used for Solid Color, or Start Color for Gradient."
+    },
+    {
+      "type": "color",
+      "id": "gradient_color_end",
+      "label": "Gradient End Color",
+      "default": "#faf7f2",
+      "info": "Used when 'Linear Gradient' is selected."
+    },
+    {
+      "type": "select",
+      "id": "gradient_direction",
+      "label": "Gradient Direction",
+      "options": [
+        { "value": "to bottom", "label": "Top to Bottom (↓)" },
+        { "value": "to right", "label": "Left to Right (→)" },
+        { "value": "135deg", "label": "Diagonal (↘)" },
+        { "value": "to top", "label": "Bottom to Top (↑)" }
+      ],
+      "default": "to bottom",
+      "info": "Used when 'Linear Gradient' is selected."
+    },
+    {
+      "type": "select",
+      "id": "preset_gradient",
+      "label": "Preset Designer Gradients",
+      "options": [
+        { "value": "warm_sand", "label": "Warm Sand Fade" },
+        { "value": "apothecary_cream", "label": "Apothecary Cream" },
+        { "value": "sunset_glow", "label": "Sunset Glow" },
+        { "value": "pearl_white", "label": "Pearl White Soft" },
+        { "value": "espresso_dark", "label": "Rich Espresso (Dark)" }
+      ],
+      "default": "warm_sand",
+      "info": "Used when 'Designer Preset' is selected."
+    },
+    {
+      "type": "range",
+      "id": "bg_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "Background Opacity (%)",
+      "default": 100
+    },
+    {
+      "type": "select",
+      "id": "bg_blend_mode",
+      "label": "Component Blending Mode",
+      "options": [
+        { "value": "normal", "label": "Normal" },
+        { "value": "multiply", "label": "Multiply" },
+        { "value": "screen", "label": "Screen" },
+        { "value": "overlay", "label": "Overlay" },
+        { "value": "soft-light", "label": "Soft Light" }
+      ],
+      "default": "normal"
+    },
+    {
+      "type": "header",
+      "content": "Interactive Sliding & Navigation Controls"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_arrows",
+      "label": "Show Navigation Arrows (< and >)",
+      "default": true,
+      "info": "Lets users click to slide backward/forward to view passed categories."
+    },
+    {
+      "type": "checkbox",
+      "id": "show_arrows_mobile",
+      "label": "Show Navigation Arrows on Mobile",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_drag",
+      "label": "Enable Touch Swipe & Mouse Drag",
+      "default": true,
+      "info": "Allows users to drag or swipe freely left and right to inspect passed categories."
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_autoplay",
+      "label": "Auto-Slide Marquee",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "marquee_speed",
+      "min": 5,
+      "max": 60,
+      "step": 1,
+      "unit": "s",
+      "label": "Auto-Slide Speed",
+      "default": 18,
+      "info": "Lower is faster sliding, higher is slower sliding."
+    },
+    {
+      "type": "select",
+      "id": "marquee_direction",
+      "label": "Auto-Slide Direction",
+      "options": [
+        { "value": "left", "label": "Slide Left" },
+        { "value": "right", "label": "Slide Right" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "checkbox",
+      "id": "pause_on_hover",
+      "label": "Pause Sliding on Hover",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_fade_edges",
+      "label": "Fade Edges Gradient",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Navigation Arrow Styling"
+    },
+    {
+      "type": "range",
+      "id": "arrow_size",
+      "min": 32,
+      "max": 54,
+      "step": 2,
+      "unit": "px",
+      "label": "Arrow Button Diameter",
+      "default": 40
+    },
+    {
+      "type": "color",
+      "id": "arrow_bg",
+      "label": "Arrow Background Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "arrow_color",
+      "label": "Arrow Icon Color",
+      "default": "#2b1b10"
+    },
+    {
+      "type": "color",
+      "id": "arrow_border",
+      "label": "Arrow Border Color",
+      "default": "rgba(0, 0, 0, 0.1)"
+    },
+    {
+      "type": "color",
+      "id": "arrow_hover_bg",
+      "label": "Arrow Hover Background",
+      "default": "#2b1b10"
+    },
+    {
+      "type": "color",
+      "id": "arrow_hover_color",
+      "label": "Arrow Hover Icon Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Circle Sizing & Spacing"
+    },
+    {
+      "type": "range",
+      "id": "circle_size_desktop",
+      "min": 80,
+      "max": 220,
+      "step": 5,
+      "unit": "px",
+      "label": "Max Circle Diameter (Desktop)",
+      "default": 140
+    },
+    {
+      "type": "range",
+      "id": "circle_size_mobile",
+      "min": 60,
+      "max": 140,
+      "step": 5,
+      "unit": "px",
+      "label": "Max Circle Diameter (Mobile)",
+      "default": 90
+    },
+    {
+      "type": "range",
+      "id": "gap_desktop",
+      "min": 10,
+      "max": 80,
+      "step": 5,
+      "unit": "px",
+      "label": "Space Between Items (Desktop)",
+      "default": 30
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "min": 10,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "label": "Space Between Items (Mobile)",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Circle Styling & Ring"
+    },
+    {
+      "type": "color",
+      "id": "circle_bg",
+      "label": "Circle Background Color",
+      "default": "#f4ede6"
+    },
+    {
+      "type": "range",
+      "id": "ring_width",
+      "min": 0,
+      "max": 8,
+      "step": 1,
+      "unit": "px",
+      "label": "Outer Ring Border Width",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "ring_padding",
+      "min": 0,
+      "max": 12,
+      "step": 1,
+      "unit": "px",
+      "label": "Ring Inner Gap / Padding",
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "ring_color",
+      "label": "Ring Border Color",
+      "default": "transparent"
+    },
+    {
+      "type": "color",
+      "id": "ring_hover_color",
+      "label": "Ring Hover Border Color",
+      "default": "#6d4327"
+    },
+    {
+      "type": "range",
+      "id": "circle_shadow",
+      "min": 0,
+      "max": 30,
+      "step": 2,
+      "unit": "%",
+      "label": "Circle Shadow Opacity",
+      "default": 6
+    },
+    {
+      "type": "header",
+      "content": "Category Title Typography"
+    },
+    {
+      "type": "range",
+      "id": "title_size",
+      "min": 12,
+      "max": 24,
+      "step": 1,
+      "unit": "px",
+      "label": "Title Font Size",
+      "default": 16
+    },
+    {
+      "type": "select",
+      "id": "title_weight",
+      "label": "Title Font Weight",
+      "options": [
+        { "value": "400", "label": "Regular" },
+        { "value": "500", "label": "Medium" },
+        { "value": "600", "label": "Semi-Bold" },
+        { "value": "700", "label": "Bold" },
+        { "value": "800", "label": "Extra Bold" }
+      ],
+      "default": "700"
+    },
+    {
+      "type": "select",
+      "id": "title_transform",
+      "label": "Title Text Case",
+      "options": [
+        { "value": "none", "label": "Normal (As typed)" },
+        { "value": "capitalize", "label": "Capitalize Each Word" },
+        { "value": "uppercase", "label": "UPPERCASE" }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "range",
+      "id": "title_letter_spacing",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "label": "Title Letter Spacing",
+      "default": 0
+    },
+    {
+      "type": "color",
+      "id": "title_color",
+      "label": "Title Text Color",
+      "default": "#6d4327"
+    },
+    {
+      "type": "color",
+      "id": "title_hover_color",
+      "label": "Title Hover Color",
+      "default": "#2b1b10"
+    },
+    {
+      "type": "range",
+      "id": "title_spacing",
+      "min": 4,
+      "max": 30,
+      "step": 2,
+      "unit": "px",
+      "label": "Spacing Between Circle & Title",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Badge Style"
+    },
+    {
+      "type": "color",
+      "id": "badge_bg",
+      "label": "Badge Background Color",
+      "default": "#e11d48"
+    },
+    {
+      "type": "color",
+      "id": "badge_color",
+      "label": "Badge Text Color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "header",
+      "content": "Section Heading & Subheading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading Text"
+    },
+    {
+      "type": "range",
+      "id": "heading_size",
+      "min": 18,
+      "max": 48,
+      "step": 2,
+      "unit": "px",
+      "label": "Heading Font Size",
+      "default": 28
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Heading Alignment",
+      "options": [
+        { "value": "left", "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right", "label": "Right" }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading Text"
+    },
+    {
+      "type": "range",
+      "id": "subheading_size",
+      "min": 12,
+      "max": 20,
+      "step": 1,
+      "unit": "px",
+      "label": "Subheading Font Size",
+      "default": 15
+    },
+    {
+      "type": "range",
+      "id": "heading_spacing",
+      "min": 10,
+      "max": 60,
+      "step": 5,
+      "unit": "px",
+      "label": "Heading Bottom Spacing",
+      "default": 30
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "Heading Color",
+      "default": "#2b1b10"
+    },
+    {
+      "type": "color",
+      "id": "subheading_color",
+      "label": "Subheading Color",
+      "default": "#7a6455"
+    },
+    {
+      "type": "header",
+      "content": "Container Width & Section Spacing"
+    },
+    {
+      "type": "range",
+      "id": "container_width",
+      "min": 600,
+      "max": 1400,
+      "step": 50,
+      "unit": "px",
+      "label": "Container Width",
+      "default": 900
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 10,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Top",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 10,
+      "max": 120,
+      "step": 5,
+      "unit": "px",
+      "label": "Padding Bottom",
+      "default": 40
+    }
+  ],
+  "blocks": [
+    {
+      "type": "category",
+      "name": "Category Circle",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Category Image"
+        },
+        {
+          "type": "text",
+          "id": "title",
+          "label": "Category Name",
+          "default": "Category"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Category Link (URL)",
+          "info": "Link to collection, product, or page."
+        },
+        {
+          "type": "text",
+          "id": "badge",
+          "label": "Badge (Optional)",
+          "info": "e.g., 'New', 'Popular', 'Sale'"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Category Circle Marquee",
+      "settings": {
+        "calc_mode": "exact_columns",
+        "items_visible_desktop": 3,
+        "items_visible_mobile": 3,
+        "container_width": 900,
+        "circle_size_desktop": 140,
+        "circle_size_mobile": 90,
+        "title_color": "#6d4327",
+        "title_weight": "700",
+        "enable_arrows": true,
+        "enable_drag": true,
+        "bg_type": "solid",
+        "bg_color": "#ffffff",
+        "bg_opacity": 100
+      },
+      "blocks": [
+        {
+          "type": "category",
+          "settings": {
+            "title": "Meals"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "title": "Treats"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "title": "Supplements"
+          }
+        },
+        {
+          "type": "category",
+          "settings": {
+            "title": "Oil"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}
